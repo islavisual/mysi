@@ -7,12 +7,12 @@ With this simple but complete PHP class can from simple queries like getting a s
 
 Way to use
 ----------
-   include "../../clases/mysi.php";<br>
-   $mysql = new mysi;
+   <code>include "mysi.php";</code><br>
+   <code>$mysi = new mysi;</code>
 
 
-Then it's a matter of making calls to the functions you want to use as a PHP class either:
-   $mysql->connect();
+Then it's a matter of making calls to the functions you want to use as a PHP class either:<br>
+   <code>$mysi->connect();</code>
 
 Just then, first of all is to set the user, password and database associated to the class. The class can automatically handle development and production environments only by changing the values of the following constants.
 
@@ -25,13 +25,17 @@ Compare Two schemes databases. The first parameter is the source and the  second
 
 mysiSC consume little memory and is very fast.
 
-You can configure variables _EXECUTE_ALTER_TABLE, _EXECUTE_CREATE_FUNCTION, _EXECUTE_CREATE_INDEX, _EXECUTE_CREATE_PROCEDURE, _EXECUTE_CREATE_TABLE, _EXECUTE_CREATE_TRIGGER , _EXECUTE_CREATE_VIEW, _GET_VARIABLES, _DATATYPES  to custom the different search modes the tool.
+You can configure variables <code>_EXECUTE_ALTER_TABLE, _EXECUTE_CREATE_FUNCTION, _EXECUTE_CREATE_INDEX, _EXECUTE_CREATE_PROCEDURE, _EXECUTE_CREATE_TABLE, <br>
+_EXECUTE_CREATE_TRIGGER , _EXECUTE_CREATE_VIEW, _GET_VARIABLES</code> and <code>_DATATYPES</code>  to custom the different search modes the tool.
 
-If _EXECUTE_ALTER_TABLE is set to TRUE, the tool will execute the sentences type ALTER  automatically.
+If <code>_EXECUTE_ALTER_TABLE</code> is set to TRUE, the tool will execute the sentences type ALTER  automatically.
 
-So will _EXECUTE_CREATE_FUNCTION, _EXECUTE_CREATE_INDEX, _EXECUTE_CREATE_PROCEDURE, _EXECUTE_CREATE_TABLE, _EXECUTE_CREATE_TRIGGER, _EXECUTE_CREATE_VIEW statements.
+So will <code>_EXECUTE_CREATE_FUNCTION, _EXECUTE_CREATE_INDEX, _EXECUTE_CREATE_PROCEDURE, _EXECUTE_CREATE_TABLE, <br>
+_EXECUTE_CREATE_TRIGGER, _EXECUTE_CREATE_VIEW</code> statements.
 
 Way to use
 ----------
-mysiSC::$_GET_VARIABLES = false;<br>
-mysiSC::compareDump('database1_name', 'database2_name');<br>
+   <code>include "mysiSC.php";</code><br>
+   
+   <code>mysiSC::$_GET_VARIABLES = false;</code><br>
+   <code>mysiSC::compareDump('database1_name', 'database2_name');</code><br>
