@@ -291,12 +291,7 @@
                 }
             }
 
-            // SHOW THE RESULTS
-            echo "<code><pre>";
-            $diff['sql'] = "<code>".implode("\n",$diff['sql'])."</code>";
-            ksort($diff);
-            var_dump($diff);
-            echo "</pre></code>";
+            return $diff;
         }
     }
 ?>
