@@ -224,8 +224,8 @@
         // -----------------------------------------------------------------------------------------------------------------
         
         public function getInfo(){
-               $browser = new Browser;
-            $aux = $browser->getInfo();
+               $mysiGI = new mysiGI;
+            $aux = $mysiGI->getInfo();
             return array(
                 'browser'          => $aux['browser'],
                 'version'          => $aux['version'],
