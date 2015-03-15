@@ -11,18 +11,23 @@
 
     // Clase Mysql
     include "mysi.getInfo.php";
+    require_once( dirname(__FILE__) . "/config.php");
     
-    class mysi{
+    define("OBJECT", "OBJECT");
+    define("ARRAY_A", "ARRAY_A");
+    define("ARRAY_N", "ARRAY_N");
+    
+    class MYSI{
         public    $resource;
         private   $total_queries = 0;
         
-        private   $_DATABASE_NAME_DEVELOPMENT = '';
-        private   $_USER_DEVELOPMENT          = '';
-        private   $_PASS_DEVELOPMENT          = '';
+        private   $_DATABASE_NAME_DEVELOPMENT = 'evidaliahost_islavisual';
+        private   $_USER_DEVELOPMENT          = 'root';
+        private   $_PASS_DEVELOPMENT          = '1123581321';
         
-        private   $_DATABASE_NAME_PRODUCTION  = '';
-        private   $_USER_PRODUCTION           = '';
-        private   $_PASS_PRODUCTION           = '';
+        private   $_DATABASE_NAME_PRODUCTION  = 'evidaliahost_islavisual';
+        private   $_USER_PRODUCTION           = 'islavisu';
+        private   $_PASS_PRODUCTION           = 'Pablo112';
         
         const     _TOKEN_KEY                  = 'date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"]);';
         var       $_ENCODED_TOKEN             = "";            //  Contains the token generated.
@@ -35,7 +40,7 @@
         var       $_SHOW_CONTROL_MESSAGES     = true;          // If this variable is set to TRUE ERROR messages are displayed.
         var       $_STOP_WARNING_ERROR        = false;         // If a warning error is found and this variable is seted to TRUE, the application execution  is force to die().
         
-        const     _SEPARADOR_SQL              = ";\n";         // Separator for executing multiple statements. At runtime, are separated by this value and then executed one by one.
+        var       $_SEPARADOR_SQL             = ";";           // Separator for executing multiple statements. At runtime, are separated by this value and then executed one by one.
         var       $_FORMAT_DATETIME_DB        = "Y-m-d H:i:s"; // Datetime format that has set in the database. By default set to AMERICAN FORMAT 1970-01-01 1:00:00.
         var       $_FORMAT_DATE_DB            = "Y-m-d";       // Date format that has set in the database. By default set to AMERICAN FORMAT 1970-01-01.
         var       $_FORMAT_DATETIME_FRMWRK    = "d-m-Y H:i:s"; // Datetime format you want to use in the Framework. By default set to FORMAT 31-12-1970 00:00:00.
@@ -51,6 +56,11 @@
         var       $last_query                 = "";            // Variable that contains the last query executed
         var       $last_error_id              = 0;             // Variable that contains ERROR NUMBER that provoked the last query executed
         var       $last_error_msg             = "";            // Variable that contains ERROR MESSAGE that provoked the last query executed
+        var       $error_text                 = "";            // 
+        var       $error_class                = "";            // 
+        var       $error_line                 = "";            // 
+        var       $error_method               = "";            // 
+        var       $_CURRENT_DB                = "";            // The database currently selected.
         
         protected $execStartTime              = 0;             // Is used to save the initial time of a query. Never change this property
         protected $execEndTime                = 0;             // Is used to save the ended time of a query. Never change this property
@@ -72,13 +82,20 @@
                     'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC', 
                   );
                      
-        function __construct(){
+        function __construct($db = ""){
+            
+            //Overwritting default behavior to handle different localhost, dev and production configurations
+            $this->_USER_DEVELOPMENT = DB_USER;
+            $this->_USER_PRODUCTION = DB_USER;
+            $this->_PASS_DEVELOPMENT = DB_PASSWORD;
+            $this->_PASS_PRODUCTION = DB_PASSWORD;
+            
             if($_SERVER['HTTP_HOST'] == "localhost"){
                 $resource=(mysql_connect($_SERVER['HTTP_HOST'], $this->_USER_DEVELOPMENT, $this->_PASS_DEVELOPMENT)) or die(mysql_error());
-                mysql_select_db($this->_DATABASE_NAME_DEVELOPMENT, $resource) or die(mysql_error());
+                mysql_select_db($db==""?$this->_DATABASE_NAME_DEVELOPMENT:$db, $resource) or die(mysql_error());
             } else {
                 $resource=(mysql_connect("localhost", $this->_USER_PRODUCTION, $this->_PASS_PRODUCTION)) or die(mysql_error());
-                mysql_select_db($this->_DATABASE_NAME_PRODUCTION, $resource) or die(mysql_error());
+                mysql_select_db($db==""?$this->_DATABASE_NAME_PRODUCTION:$db, $resource) or die(mysql_error());
             }
             
             mysql_query("SET NAMES '".$this->_CHARSET_PREFERRED."'",$resource);
@@ -120,7 +137,7 @@
         // ------------------------------------------------------------------------------------------------------------
         
         function encodeToken($string) {
-            eval("\$auxToken = ".mySQL::_TOKEN_KEY);
+            eval("\$auxToken = ".self::_TOKEN_KEY);
             eval("\$token_key = '".$auxToken."';");
             
             $token = '';
@@ -139,7 +156,7 @@
         // ------------------------------------------------------------------------------------------------------------
         
         function decodeToken($token) {
-            eval("\$auxToken = ".mySQL::_TOKEN_KEY);
+            eval("\$auxToken = ".self::_TOKEN_KEY);
             eval("\$token_key = '".$auxToken."';");
             
             $token = base64_decode($token);
@@ -243,7 +260,7 @@
         
         public function createTableLog(){
             $query = $this->_LOG_TABLE_DEF;
-            $query = @ereg_replace('<table_log>', $this->_LOG_TABLE_NAME, $query);
+            $query = @str_replace('<table_log>', $this->_LOG_TABLE_NAME, $query);
             $result = mysql_query($query);
             $this->last_query = $query;
             
@@ -287,7 +304,6 @@
                                 $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
                                 
                                 if($_CLASS_ALLOWED || $this->last_error_id != ""){
-//                                    echo $call[$xCount]['class']." -> ".$call[$xCount]['function']."\n";
                                     $result = mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', 'Call Control', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
                                 }
                 
@@ -303,8 +319,7 @@
                                 $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
                                 
                                 if($_CLASS_ALLOWED || $this->last_error_id != ""){
-//                                    echo $this->last_error_id." ".$call[$xCount]['class']." -> ".$call[$xCount]['function']."\n";
-                                    $result = mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', '".mysql_real_escape_string($event)."', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
+                                    $result = @mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', '".mysql_real_escape_string($event)."', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
                                 }
             }
         }
@@ -383,7 +398,7 @@
         
         // -----------------------------------------------------------------------------------------------
         // CONVIERTE UNA CADENA DE TIPO FECHA, DEL FORMATO ENVIADO A UN ARRAY.
-        // LOS PARÁMETROS DE $format SON LOS MISMOS QUE PARA LA IUNSTRUCCION DATEDE PHP.
+        // LOS PARÁMETROS DE $format SON LOS MISMOS QUE PARA LA INSTRUCCIÓN DATE DE PHP.
         // -----------------------------------------------------------------------------------------------
         
         public function time2Array($date, $format) {
@@ -397,13 +412,13 @@
             );
             $rexep = "#".strtr(preg_quote($format), $masks)."#";
             if(!preg_match($rexep, $date, $out)) return false;
-            
+
             $ret = array(
-                "tm_sec"  => (int) $out['S'],
-                "tm_min"  => (int) $out['M'],
-                "tm_hour" => (int) $out['H'],
+                "tm_sec"  => isset($out['s'])?((int) $out['s']):0,
+                "tm_min"  => isset($out['s'])?((int) $out['M']):0,
+                "tm_hour" => isset($out['s'])?((int) $out['H']):0,
                 "tm_mday" => (int) $out['d'],
-                "tm_mon"  => $out['m']?$out['m']-1:0,
+                "tm_mon"  => isset($out['m'])?$out['m']-1:0,
                 "tm_year" => $out['Y'] > 1900 ? $out['Y']-1900 : 0,
             );
             
@@ -422,25 +437,25 @@
         // Si la cadena es "2012-oct o "oct-2012" siendo 2012 el año y oct el mes (Octubre), devuelve 01-10-2012.
         
         public function mkTimeFormat($value, $format=""){
-            $f = $format;
+            $tm_year = 0; $tm_mon = 0; $tm_mday = 0; $tm_hour = 0; $tm_min = 0; $tm_sec = 0; $f = $format;
             if($f == "") $f = $this->_FORMAT_DATETIME_FRMWRK;
             
             for ($x = 0; $x < count($this->_NAMES_MONTH); $x++){
                 $value = str_ireplace($this->_NAMES_MONTH[$x], ($x % 12)+1, $value);
             }
-            
-            $value = ereg_replace("/", "-", $value);
-            $f = ereg_replace("/", "-", $f);
+
+            $value = str_replace("/", "-", $value);
+            $f = str_replace("/", "-", $f);
             @extract($this->time2Array($value,$f));
-            
+
             if($tm_year == 0 && $tm_mon == 0 && $tm_mday == 0 && $tm_hour == 0 && $tm_min == 0 && $tm_sec == 0 && $format==""){
-                $f = ereg_replace("/", "-", $this->_FORMAT_DATE_FRMWRK);
+                $f = str_replace("/", "-", $this->_FORMAT_DATE_FRMWRK);
                 @extract($this->time2Array($value,$f));
             }
             
             if($tm_year == "" && $tm_mday != "" && $tm_mon != "") $tm_year = date("Y")-1900;
             if($tm_mday == "") $tm_mday = "01";
-            
+
             $mktime = mktime(
                 intval($tm_hour),
                 intval($tm_min),
@@ -469,7 +484,7 @@
         // ------------------------------------------------------------------------------------------------------------------------------
         
         public function toDateFormat($value, $format_source="", $format=""){
-            
+            $mktime = 0;
             if($this->isNumber(substr($value, 0,4))) $mktime = strtotime($value);
             
             if($mktime == 0){
@@ -581,7 +596,8 @@
                 $dInit = $dEnd;
                 $dEnd = $aux;
             }
-            echo date("d-m-Y", $dInit)." ".date("d-m-Y", $dEnd)."<br />";
+            //echo date("d-m-Y", $dInit)." ".date("d-m-Y", $dEnd)."<br />";
+            
             // Hacemos los cálculos
             $d=intval(($dEnd-$dInit)/86400);
             $h=intval((($dEnd-$dInit) - ($d*86400))/3600);
@@ -595,16 +611,18 @@
         // REALIZA LA CONEXIÓN A LA BASE DE DATOS
         // -----------------------------------------------------------------------------------------------
         
-        public function connect(){
+        public function connect($db = ""){
             if(!isset($this->resource)){
                 if($_SERVER['HTTP_HOST'] == "localhost"){
                     $this->resource=(mysql_connect($_SERVER['HTTP_HOST'], $this->_USER_DEVELOPMENT, $this->_PASS_DEVELOPMENT)) or die(mysql_error());
-                    mysql_select_db($this->_DATABASE_NAME_DEVELOPMENT, $this->resource) or die(mysql_error());
+                    mysql_select_db($db==""?$this->_DATABASE_NAME_DEVELOPMENT:$db, $this->resource) or die(mysql_error());
                 } else {
                     $this->resource=(mysql_connect("localhost", $this->_USER_PRODUCTION, $this->_PASS_PRODUCTION)) or die(mysql_error());
-                    mysql_select_db($this->_DATABASE_NAME_PRODUCTION, $this->resource) or die(mysql_error());
+                    mysql_select_db($db==""?$this->_DATABASE_NAME_PRODUCTION:$db, $this->resource) or die(mysql_error());
                 }
             }
+            
+            if($db != "") $this->_CURRENT_DB = $db;
         }
         
         // -----------------------------------------------------------------------------------------------
@@ -612,6 +630,8 @@
         // -----------------------------------------------------------------------------------------------
         
         public function usedb($db_name){
+            echo "Function usedb() is deprecated.";
+            return false;
             if(!isset($this->resource)){
                 $this->_DATABASE_NAME_DEVELOPMENT = $db_name;
                 $this->_DATABASE_NAME_PRODUCTION  = $this->_DATABASE_NAME_DEVELOPMENT;
@@ -626,12 +646,28 @@
         // Si _STOP_WARNING_ERROR está establecido a true, se parará la ejecución como si un ERROR se tratase.  Sólo para depuración de errores.
         // ------------------------------------------------------------------------------------------------------------------------------------------
         
-        public function query($query){
+        public function query($query, $output = "", $prepare = true){
             $this->total_queries++;
             $this->selected_rows = 0;
             $this->affected_rows = 0;
             $this->execStartTime = $this->uTime();
+            
             if (preg_match( '/^\s*(select) /i', $query) || preg_match( '/^\s*(show) /i', $query)){
+                $queries_count = 0;
+                $queries_arr = explode($this->_SEPARADOR_SQL, $query);
+                foreach($queries_arr as $query_item){
+                    $query_item = trim($query_item);
+                    if($query_item != "") $queries_count++;
+                }
+                if($queries_count > 1){
+                    $this->last_error_id  = '0001';
+                    $this->last_error_msg = "There are many queries. Use to SELECT and SHOW a single statement.";
+                    $this->error_class    = 'MYSI';
+                    $this->error_line     = '';
+                    $this->error_method   = 'QUERY';
+                    return false;
+                }
+                
                 $this->resource = mysql_query($query);
                 //$result = $this->resource;
                 $this->last_query = $query;
@@ -642,10 +678,11 @@
                 
                 if($this->_ENABLED_LOG) $this->insertEntryLog($this->last_query);
                 
-                return $this->resource;
+                if($output != "") return $this->getContain($output);
+                else return $this->resource;
             } else {
-                $query .= mySQL::_SEPARADOR_SQL;
-                $query_array = explode(mySQL::_SEPARADOR_SQL, $query);
+                if($prepare) $query_array = $this->prepare_queries($query); else $query_array = array($query);
+//                var_dump($query_array); echo "\n\n";
                 foreach ($query_array as $sentence){
                     if (trim($sentence) != ""){
                         if($this->_UTF8_ENCODE){
@@ -655,9 +692,10 @@
                         }
                         $result = $this->resource;
                         $this->last_query = $sentence;
-                        if (!$this->resource) {
+
+                        if (!$this->resource && stripos($this->last_query, 'DELIMITER') === false ) {
                             $this->showError();
-                        } else {
+                        } elseif( stripos($this->last_query, 'DELIMITER') === false) {
                             if (preg_match( '/^\s*(insert) /i', $sentence)){ $this->affected_rows += 1; $this->last_insert_id = mysql_insert_id(); }
                             else $this->affected_rows += $this->affected_rows();
                             $this->execEndTime = $this->uTime(); 
@@ -671,6 +709,83 @@
             } 
             
             return $this->resource;
+        }
+        
+        private function getContain($output){
+            if($this->selected_rows == 1){
+                $result = @mysql_fetch_array($this->resource, MYSQL_ASSOC);
+            } else {
+                while($row = @mysql_fetch_array($this->resource, MYSQL_ASSOC)){
+                    $result[] = $row;
+                    if(mysql_errno() != 0) $this->showError();
+                } 
+            }
+            
+            if ( $output == OBJECT ){
+                // If the output is an object then return row as such..
+                $object = new stdClass();
+                foreach ($result as $key => $value){ $object->$key = $value; }
+                return $object;
+                
+            } elseif ( $output == ARRAY_A ){
+                // If the output is an associative array then return row as such..
+                if(!empty($result)) return $result; else null;
+            } elseif ( $output == ARRAY_N ){
+                // If the output is an numerical array then return row as such..
+                if(!empty($result)) return array_values($result); else null;
+            }
+        }
+        
+        public function prepare_queries($queries){
+            $queries_list = array();
+            $xCount = 0;
+            
+            $posi = stripos($queries, 'delimiter');
+            if($posi !== false){
+                $queries_array = explode("DELIMITER", str_ireplace("delimiter ", "DELIMITER ", $queries));
+                for($x = 0; $x < count($queries_array); $x++){
+                    $query_section = trim($queries_array[$x]);
+                    
+                    if($query_section == "" || $query_section ==  $this->_SEPARADOR_SQL ) continue;
+                    
+                    if($x == 0){
+                        $delimiter = ';';
+                    } else {
+                        $delimiter = trim(substr($query_section, 0, strpos($query_section, "\n")));
+                        if($delimiter == "") $delimiter = trim(substr($query_section, 0, strpos($query_section, " ")));
+                    }
+                    $this->_SEPARADOR_SQL = $delimiter;
+                    
+                    $query_section = trim(substr($query_section, stripos($query_section, $delimiter)+strlen($delimiter)));
+                    $arr = explode($delimiter, $query_section);
+                    
+                    $delimiterCount = 0;
+                    foreach ($arr as $query){
+                        $query = trim($query);
+                        
+                        if($query == "") continue;
+                        
+                        if($delimiterCount == 0){
+                            $queries_list[] = 'DELIMITER '.$this->_SEPARADOR_SQL;
+                            $delimiterCount++;
+                        }
+                        $queries_list[] = $query; //.$this->_SEPARADOR_SQL;
+                        $xCount++;
+                    }
+                }
+            } else {
+                $delimiter = $this->_SEPARADOR_SQL;
+                $queries_array = explode($delimiter, $queries);
+                
+                foreach ($queries_array as $query){
+                    $query = trim($query);
+                    if($query != ""){
+                        $queries_list[] = $query; //.$delimiter;
+                        $xCount++;
+                    }
+                }
+            }
+            return $queries_list;
         }
         
         // -----------------------------------------------------------------------------------------------------------------
@@ -705,7 +820,7 @@
         // -----------------------------------------------------------------------------------------------------------------
         
         public function showError(){
-                    //echo "E0.".$this->last_query."ERROR ".mysql_errno().": ".mysql_error().".<br /><br />";
+                    error_reporting(E_ALL^E_NOTICE);
                     $call = debug_backtrace();
                     for($xCount = 1; $xCount < 10; $xCount++){
                         if($call[$xCount]['function'] != "query" 
@@ -715,23 +830,31 @@
                         && substr($call[$xCount]['function'], 0, 7) != "include") break;
                     }
                     
-                    $siteError = '<b style="color:'.$this->_ERROR_COLOR.'">CLASS</b>: '.mysql_real_escape_string($call[$xCount]['class']).'<br /><b style="color:'.$this->_ERROR_COLOR.'">LINE: </b>'.$call[$xCount-1]['line'].'<br /><b style="color:'.$this->_ERROR_COLOR.'">METHOD: </b>'.$call[$xCount]['function'];
+                    $this->last_error_id  = mysql_errno();
+                    $this->last_error_msg = mysql_error();
+                    $this->error_class    = mysql_real_escape_string($call[$xCount]['class']);
+                    $this->error_line     = $call[$xCount-1]['line'];
+                    $this->error_method   = $call[$xCount]['function'];
                     
-                    $this->last_error_id     =  mysql_errno();
-                    $this->last_error_msg    =  mysql_error();
+                    $siteError = '<b style="color:'.$this->_ERROR_COLOR.'">CLASS</b>: '.$this->error_class.'<br /><b style="color:'.$this->_ERROR_COLOR.'">LINE: </b>'.$this->error_line.'<br /><b style="color:'.$this->_ERROR_COLOR.'">METHOD: </b>'.$this->error_method;
+                    
                     if (strpos($this->_IGNORE_ERRORS, (string) mysql_errno()) !== false){
                             if ($this->_SHOW_WARNING_ERROR){
-                                    if ($this->_SHOW_CONTROL_MESSAGES && $this->_SHOW_IGNORED_ERRORS) echo '<b style="color:'.$this->_WARNING_COLOR.'">WARNING</b>:<br> Error: ' . mysql_errno() . ": " . mysql_error()."<br>".'<i>'.$sentence."</i><br>\n";
-                                    if ($this->_STOP_WARNING_ERROR && $this->_SHOW_IGNORED_ERRORS) die();
+                                    if ($this->_SHOW_CONTROL_MESSAGES && $this->_SHOW_IGNORED_ERRORS) $this->error_text = '<b style="color:'.$this->_WARNING_COLOR.'">WARNING</b>:<br> Error: ' . mysql_errno() . ": " . mysql_error()."<br>".'<i>'.$sentence."</i><br>\n";
+                                    if ($this->_STOP_WARNING_ERROR && $this->_SHOW_IGNORED_ERRORS) return false;
                             } elseif($this->_SHOW_CONTROL_MESSAGES) {
                                     $this->insertEntryLog('ERROR '.$this->last_error_id . ': '.$this->last_error_msg);
-                                    die('<b style="color:'.$this->_ERROR_COLOR.'">FATAL ERROR</b>:<br>Error: ' . $this->last_error_id . ": " . $this->last_error_msg . '<br /><b style="color:'.$this->_ERROR_COLOR.'">QUERY: </b>'.$this->last_query."<br />$siteError<br />");
+                                    $this->error_text = '<b style="color:'.$this->_ERROR_COLOR.'">FATAL ERROR</b>:<br>Error: ' . $this->last_error_id . ": " . $this->last_error_msg . '<br /><b style="color:'.$this->_ERROR_COLOR.'">QUERY: </b>'.$this->last_query."<br />$siteError<br />";
                             }
                     } elseif($this->_SHOW_CONTROL_MESSAGES) {
                             $this->insertEntryLog('ERROR '.$this->last_error_id . ': '.$this->last_error_msg);
-                            die('<b style="color:'.$this->_ERROR_COLOR.'">FATAL ERROR</b>:<br>Error: ' . $this->last_error_id . ": " . $this->last_error_msg . '<br /><b style="color:'.$this->_ERROR_COLOR.'">QUERY: </b>'.$this->last_query."<br />$siteError<br />");
+                            $this->error_text = '<b style="color:'.$this->_ERROR_COLOR.'">FATAL ERROR</b>:<br>Error: ' . $this->last_error_id . ": " . $this->last_error_msg . '<br /><b style="color:'.$this->_ERROR_COLOR.'">QUERY: </b>'.$this->last_query."<br />$siteError<br />";
                     }
-                    //$this->last_error_id = "";
+        }
+        
+        public function getNextAutoIncrement($table, $db=""){
+            if($db == "") $db = $this->_CURRENT_DB;
+            return $this->getValue("SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = '".$table."' AND table_schema = '".$db."' ;");
         }
                 
         // -----------------------------------------------------------------------------------------------------------------------------------
@@ -751,6 +874,10 @@
                 $row = mysql_fetch_row($result);
                 return $row[$field_number];
             }
+        }
+
+        public function real_escape($sentence){
+            return mysql_real_escape_string($sentence);
         }
         
         // -----------------------------------------------------------------------------------------------------------------------------------
@@ -863,9 +990,9 @@
         public function export($exportfilename, $exportdrop=false, $exporttables=false, $exportcompresion=false){
             // Definimos la base de datos de desarrollo o produción
             if($_SERVER['HTTP_HOST'] == "localhost"){
-                $bd = mySQL::_DATABASE_NAME_DEVELOPMENT;
+                $bd = self::_DATABASE_NAME_DEVELOPMENT;
             } else {
-                $bd = mySQL::_DATABASE_NAME_PRODUCTION;
+                $bd = self::_DATABASE_NAME_PRODUCTION;
             }
             
             // Array de tablas a exportar.
@@ -902,18 +1029,18 @@
             $info['tablas'] = implode(";  ", $matches[1]);
             $dump = "
 # +===================================================================
-# | MySQL Class {$info['dumpversion']}
+# | MySQL Class ".$info['dumpversion']."
 # | por islavisual <comercial@islavisual.com>
 # |
-# | Generado el {$info['fecha']} a las {$info['hora']} por el usurio '$usurio'
-# | Servidor: {$_SERVER['HTTP_HOST']}
-# | Browser: {$aux['browser']} {$aux['version']}
-# | SO: {$aux['so']}
-# | IP: {$aux['ip']}
-# | MySQL Version: {$info['mysqlver']}
-# | PHP Version: {$info['phpver']}
+# | Generado el ".$info['fecha']." a las ".$info['hora']." por el usurio '$usurio'
+# | Servidor: ".$_SERVER['HTTP_HOST']."
+# | Browser: ".$aux['browser']." ".$aux['version']."
+# | SO: ".$aux['so']."
+# | IP: ".$aux['ip']."
+# | MySQL Version: ".$info['mysqlver']."
+# | PHP Version: ".$info['phpver']."
 # | Base de datos: '$bd'
-# | Tablas: {$info['tablas']}
+# | Tablas: ".$info['tablas']."
 # |
 # +-------------------------------------------------------------------";
             
@@ -1015,6 +1142,78 @@ $insert_into_query
             if ($this->resource){ 
                 return mysql_close($this->resource); 
             } 
+        }
+        
+        /**
+         * 
+         * 
+         **/
+        
+        /**
+         * Check that doesn't exists bad words in code sent.
+         * If file has one of array words returns a message error and execution is give by terminated.
+         * @param type $array Array of queries that contain the code to check.
+         * @return boolean If return value is true means the code contain bad words.
+         */
+        public function checkBadWords($array){
+            //$badWords = array('CREATE DATABASE', 'DELETE', 'INSERT', 'UPDATE', 'DROP DATABASE', 'USE');
+            $badWords = array('CREATE DATABASE', 'DROP DATABASE', 'USE');
+            
+            $halt = false;
+            foreach($array as $line){
+                $subLines = explode(";",$line);
+                foreach($subLines as $subLine){
+                    $subLine = " ".utf8_decode(trim($subLine));
+                    foreach($badWords as $word){
+                        $place = strpos($subLine, " ".$word." ");
+                        if($place !== false){
+                            $halt = true;
+                            break;
+                        }
+                    }
+                    if($halt) break;
+                }
+                if($halt) break;
+            }
+            
+            if($halt) return $word;
+            
+            return false;
+        }
+        
+        /**
+         * Clear text and prepare to execute.
+         * @param type $text Is the array / text with the queries SQL
+         * @return string Returns a string clean of commets and white blanks
+         */
+        
+        
+        public function clean($text){
+            if(!is_array($text)){
+                $lines = explode("\n", $text);
+            } else {
+                $lines = $text;
+            }
+            
+            $linesAux = array();
+            foreach ($lines as $line){
+                $line = trim($line);
+                if($line != ""){
+                    if(substr($line, 0, 2) != '--' && $line != "" && substr($line, 0, 3) != '/*!'){
+                        $linesAux[]= $line;
+                    } elseif(trim(substr($line, 0, 3)) == '/*!'){
+                        $linesAux[]= substr($line, stripos($line, " "), stripos($line, "*/")-stripos($line, " ")).";";
+                    }
+                }
+            }
+            $lines = implode("\n", $linesAux);
+            $lines = explode(";", $lines);
+            $str = "";
+            foreach ($lines as $line){
+                if(trim($line)) $str .= trim($line).";\n";
+            }
+            
+            return $str;
         }
     }
 ?>
