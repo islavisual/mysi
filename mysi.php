@@ -1,7 +1,7 @@
 <?php
     /* ************************************************************************************************************************************************************
      * ************************************************************************************************************************************************************
-     Mysi MySQL Class 1.0 
+     Mysi MySQL Class 1.01
      Created by Pablo E. Fernández Casado
      Licence MIT.
      Visite http://www.islavisual.com
@@ -20,14 +20,6 @@
     class MYSI{
         public    $resource;
         private   $total_queries = 0;
-        
-        private   $_DATABASE_NAME_DEVELOPMENT = 'evidaliahost_islavisual';
-        private   $_USER_DEVELOPMENT          = 'root';
-        private   $_PASS_DEVELOPMENT          = '1123581321';
-        
-        private   $_DATABASE_NAME_PRODUCTION  = 'evidaliahost_islavisual';
-        private   $_USER_PRODUCTION           = 'islavisu';
-        private   $_PASS_PRODUCTION           = 'Pablo112';
         
         const     _TOKEN_KEY                  = 'date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"]);';
         var       $_ENCODED_TOKEN             = "";            //  Contains the token generated.
@@ -126,14 +118,14 @@
         
         // ************************************************************************************************************************************************************
         // ************************************************************************************************************************************************************
-        // FUNCIONES PARA EL CONTROL DE TRANSFERENCIA DE DATOS.
-        // SE USARÁ PARA CONTROLAR QUE NO SE ENVÍE A LA BBDD 2 VECES LA MISMA SENTENCIA SQL.
-        // TAMBIÉN SE PUEDE USAR PARA EL GESTIONAR LA SEGURIDAD DE LAS TRANSFERENCIAS ENTRE EL SERVIDOR Y MYSQL.
+        // Functions to data transfer control.
+        // You can use to to avoid repeated sentences in the same moment.
+        // In addition, you can use it to management and sent of secure sentences
         // ************************************************************************************************************************************************************
         // ************************************************************************************************************************************************************
         
         // ------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN PARA CODIFICAR O CREAR TOKENS. SE BASA EL LA CONSTAMTE _TOKEN_KEY PARA CODIFICAR LA CADENA ENVIADA.
+        // Function to encode / create tokens. The algorithm is made through to _TOKEN_KEY constant to make the sent string
         // ------------------------------------------------------------------------------------------------------------
         
         function encodeToken($string) {
@@ -152,7 +144,7 @@
         }
         
         // ------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN PARA DECODIFICAR TOKENS.
+        // Function to decode tokens.
         // ------------------------------------------------------------------------------------------------------------
         
         function decodeToken($token) {
