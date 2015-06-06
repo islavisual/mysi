@@ -9,7 +9,7 @@
      ************************************************************************************************************************************************************
     */
 
-    // Clase MYSI
+    // Clase Mysql
     include "mysi.getInfo.php";
     require_once( dirname(__FILE__) . "/config.php");
     
@@ -936,21 +936,14 @@
             }
         }
 
+        /**
+         * Escapes special characters in a string for use in SQL statements referenced by $this->resource (the MySQL connection identifier)
+         * @param string $sentence Query to execute.
+         * @return string Return string escaped.
+         */
         public function real_escape($sentence){
             return mysql_real_escape_string($sentence);
         }
-        
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // REALIZA LA CONSULTA A LA BASE DE DATOS ENVIADA POR $sentence Y DEVUELVE UNA LISTA CON LOS VALORES DE LOS CAMPOS SOLICITADOS.
-        // LA LISTA ES UN ARRAY QUE DESPUES PODEMOS RECUPERAR CON LA INSTRUCCIÓN list DE PHP O TRATARLO COMO UN array CUALQUIERA DE PHP.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // EJ.: SELECT id, name FROM blog_tags WHERE id = 112;
-        // LA FORMA MÁS FRECUENTE DE RECUPERAR LOS VALORES ES O SERÁ, EN EL EJEMPLO:
-        // list($id, $name) = $this->getValues('SELECT id, name FROM blog_tags WHERE id = 112;');
-        // PARA DESPUÉS RECUPERALO COMO:
-        // echo "id = ".$id.", name = ".$name;
-        // Si no hay coincidencias devuelve el valor por defecto establecido por _EMPTY_FIELD_BY_DEFAULT
-        // -----------------------------------------------------------------------------------------------------------------------------------
 
         /**
          * Make the request to database and returns a list with the values of the requested fields.
