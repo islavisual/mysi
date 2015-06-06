@@ -1,7 +1,7 @@
 <?php
     /* ************************************************************************************************************************************************************
      * ************************************************************************************************************************************************************
-     Mysi MySQL Class 1.01
+     Mysi MySQL Class 1.0 
      Created by Pablo E. Fernández Casado
      Licence MIT.
      Visite http://www.islavisual.com
@@ -9,7 +9,7 @@
      ************************************************************************************************************************************************************
     */
 
-    // Clase Mysql
+    // Clase MYSI
     include "mysi.getInfo.php";
     require_once( dirname(__FILE__) . "/config.php");
     
@@ -21,6 +21,14 @@
         public    $resource;
         private   $total_queries = 0;
         
+        private   $_DATABASE_NAME_DEVELOPMENT = '';         // For intern use.
+        private   $_USER_DEVELOPMENT          = '';         // For intern use.
+        private   $_PASS_DEVELOPMENT          = '';         // For intern use.
+
+        private   $_DATABASE_NAME_PRODUCTION  = '';         // For intern use.
+        private   $_USER_PRODUCTION           = '';         // For intern use.
+        private   $_PASS_PRODUCTION           = '';         // For intern use.
+
         const     _TOKEN_KEY                  = 'date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"]);';
         var       $_ENCODED_TOKEN             = "";            //  Contains the token generated.
         
@@ -59,7 +67,7 @@
         var       $completedIn                = 0;             // Is used to save the transcurred time of a query. Never change this property
         
         // -------------------------------
-        // VARIABLES DEL LOG DE EVENTOS
+        // Events Log variables
         // -------------------------------
         public    $_ENABLED_LOG               = false;         // If this variable is set to TRUE is saves in the database a log entry every page that is accessed. If FALSE, it does nothing.
         private   $_LOG_TABLE_CREATE_AUTO     = true;          // Indicates whether to create the table automatically if the database is not created at the time of the call or execution.
@@ -75,59 +83,22 @@
                   );
                      
         function __construct($db = ""){
-            
-            //Overwritting default behavior to handle different localhost, dev and production configurations
-            $this->_USER_DEVELOPMENT = DB_USER;
-            $this->_USER_PRODUCTION = DB_USER;
-            $this->_PASS_DEVELOPMENT = DB_PASSWORD;
-            $this->_PASS_PRODUCTION = DB_PASSWORD;
-            
-            if($_SERVER['HTTP_HOST'] == "localhost"){
-                $resource=(mysql_connect($_SERVER['HTTP_HOST'], $this->_USER_DEVELOPMENT, $this->_PASS_DEVELOPMENT)) or die(mysql_error());
-                mysql_select_db($db==""?$this->_DATABASE_NAME_DEVELOPMENT:$db, $resource) or die(mysql_error());
-            } else {
-                $resource=(mysql_connect("localhost", $this->_USER_PRODUCTION, $this->_PASS_PRODUCTION)) or die(mysql_error());
-                mysql_select_db($db==""?$this->_DATABASE_NAME_PRODUCTION:$db, $resource) or die(mysql_error());
-            }
-            
-            mysql_query("SET NAMES '".$this->_CHARSET_PREFERRED."'",$resource);
-            mysql_query("SET CHARACTER SET ".$this->_CHARSET_PREFERRED, $resource);
-            if($this->_CHARSET_PREFERRED == "utf8") 
-                mysql_query("SET SESSION collation_connection = '".$this->_CHARSET_PREFERRED."_unicode_ci'", $resource);
-            else {
-                mysql_query("SET SESSION collation_connection = '".$this->_CHARSET_PREFERRED."'", $resource);
-            }
-            
-            if($this->_ENABLED_LOG){
-                $result = mysql_query("SHOW TABLES LIKE '".$this->_LOG_TABLE_NAME."';");
-                $this->last_query = "SHOW TABLES LIKE '".$this->_LOG_TABLE_NAME."';";
-                $row = mysql_fetch_row($result);
-                $row = $row[0];
-    
-                if($row == $this->_EMPTY_FIELD_BY_DEFAULT){
-                    $resultCreate = $this->createTableLog();
-                }
-                
-                // Eliminamos los registros sobrantes.
-                if($this->_SIZE_LOG_IN_DAYS != 0){
-                    $result = mysql_query("DELETE FROM ".$this->_LOG_TABLE_NAME." WHERE fecha < DATE_SUB(NOW(),INTERVAL ".$this->_SIZE_LOG_IN_DAYS." DAY)");
-                    $this->last_query = "DELETE FROM ".$this->_LOG_TABLE_NAME." WHERE fecha < DATE_SUB(NOW(),INTERVAL ".$this->_SIZE_LOG_IN_DAYS." DAY)";
-                }    
-            }
+            $this->connect($db);
         }
+
+        /*************************************************************************************************************
+         FUNCTIONS TO DATA TRANSFER CONTROL
+         ----------------------------------
+         You can use to to avoid repeated sentences in the same moment.
+         In addition, you can use it to management and sent of secure sentences
+         ************************************************************************************************************/
         
-        // ************************************************************************************************************************************************************
-        // ************************************************************************************************************************************************************
-        // Functions to data transfer control.
-        // You can use to to avoid repeated sentences in the same moment.
-        // In addition, you can use it to management and sent of secure sentences
-        // ************************************************************************************************************************************************************
-        // ************************************************************************************************************************************************************
-        
-        // ------------------------------------------------------------------------------------------------------------
-        // Function to encode / create tokens. The algorithm is made through to _TOKEN_KEY constant to make the sent string
-        // ------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to encrypted tokens. The algorithm is made through to _TOKEN_KEY constant to make the sent string.
+         * Example: $mysql->encodeToken("Complete. SELECT * FROM blog_tags WHERE 1;");
+         * @param string $string String to encode
+         * @return string String encrypted.
+         **/
         function encodeToken($string) {
             eval("\$auxToken = ".self::_TOKEN_KEY);
             eval("\$token_key = '".$auxToken."';");
@@ -142,11 +113,13 @@
             $this->_ENCODED_TOKEN = $token;
             return base64_encode($token);
         }
-        
-        // ------------------------------------------------------------------------------------------------------------
-        // Function to decode tokens.
-        // ------------------------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Function to decrypted tokens.
+         * Example: $mysql->decodeToken("jHd8dnWBUVtNd4Nvf1CcnKKhlKTlJsgn1GflpKMm6qblJRamKigUBqqlqWgTQ==");
+         * @param string $token String to decode
+         * @return string String decrypted.
+         */
         function decodeToken($token) {
             eval("\$auxToken = ".self::_TOKEN_KEY);
             eval("\$token_key = '".$auxToken."';");
@@ -162,14 +135,13 @@
             return $string;
         }
         
-        // ------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE COMPARA UN TOKEN ENVIADO POR $token CON EL TOKEN CREADO A PARTIR DE $string. 
-        // SE BASA EL LA CONSTAMTE _TOKEN_KEY PARA CODIFICAR LA CADENA ENVIADA.
-        // SI $token ES VACÍO TOMA COMO TOKEN PARA COMPARAR EL DEVUELTO POR LA VARIABLE _ENCODED_TOKEN.
-        // ------------------------------------------------------------------------------------------------------------
-        // Devuelve TRUE si son iguales. En cualquier otro caso devuelve FALSE.
-        // ------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to compare the sent token into $token and the string returned through by $string.
+         * Example: $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
+         * @param string $string Original string to compare.
+         * @param string $token Encrypted string to compare.
+         * @return bool Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+         */
         function checkToken($string, $token=""){
             $current_token = $token;
             if($current_token == "") $current_token = $this->_ENCODED_TOKEN;
@@ -180,13 +152,13 @@
             return false;
         }
         
-        // ------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE COMPARA 2 TOKENS 
-        // SI $token2 ES VACÍO TOMA COMO TOKEN PARA COMPARAR EL DEVUELTO POR LA VARIABLE _ENCODED_TOKEN.
-        // ------------------------------------------------------------------------------------------------------------
-        // Devuelve TRUE si son iguales. En cualquier otro caso devuelve FALSE.
-        // ------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to check two tokens. If $token1 is empty take to compare the returned token by the _ENCODED_TOKEN
+         * Example: $mysql->compareTokens("6qblJRamKigUBqqlqWgTQ==");
+         * @param string $token1 First token to compare.
+         * @param string $token2 Second token to compare.
+         * @return bool Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+         */
         function compareTokens($token1, $token2=""){
             if($token2 == "") $token2 = $this->_ENCODED_TOKEN;
             
@@ -195,12 +167,12 @@
             return false;
         }
         
-        // ------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN COMPRUEBA QUE EL TOKEN INTRODUCIDO NO ESTÁ EN LA TABLA REFERENCIADA POR _LOG_TABLE_NAME DE LA BBDD.
-        // ------------------------------------------------------------------------------------------------------------
-        // Devuelve TRUE si son iguales. En cualquier otro caso devuelve FALSE.
-        // ------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to check if sent token already is into database.
+         * Example: $mysql->existsToken("6qblJRamKigUBqqlqWgTQ==");
+         * @param string $token Encrypted string to check.
+         * @return bool Return true if exists, false in another issue.
+         */
         function existsToken($token=""){
             $current_token = $token;
             if($current_token == "") $current_token = $this->_ENCODED_TOKEN;
@@ -217,21 +189,24 @@
             return false;
         }
         
-        // ************************************************************************************************************************************************************
-        // ************************************************************************************************************************************************************
-        // FUNCIONES PARA LA GESTIÓN DEL LOG
-        // SE UTILIZA PARA EL CONTROL DE EVENTOS EN EL SISTEMA Y GUARDAR EL HISTORIAL DE CONSULTAS QUE SE REALIZARON EN LOS
-        // ÚLTIMOS '_SIZE_LOG_IN_DAYS' DÍAS, SIEMPRE Y CUANDO _SAVE_QUERIES_IN_LOG ESTÉ true. POR DEFECTO SON 30 DÍAS.
-          // ************************************************************************************************************************************************************
-        // ************************************************************************************************************************************************************
-        
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE DEVUELVE EL BROWSER, VERSION, IP Y SO DEL CLIENTE QUE ACCEDE A LA PÁGINA. 
-        // -----------------------------------------------------------------------------------------------------------------
-        // Necesita de la clase "getInfo" para alimentarse. Por ello si se usa es necesario incluir la línea de código:
-        // EJ.: include "getInfo.class.php";
-        // -----------------------------------------------------------------------------------------------------------------
-        
+        /*************************************************************************************************************
+         FUNCTIONS TO LOG MANAGEMENT
+         ---------------------------
+         This functions are used to event management like, for example, check queries history from a few days ago.
+         The days number is seted by '_SIZE_LOG_IN_DAYS' constant. This functionality is enabled only if
+         '_SAVE_QUERIES_IN_LOG' is seted to 'true'. By default this variable is 30 days.
+        *************************************************************************************************************/
+
+        /**
+         * Function to recover the client data that browse by the system / web.
+         * Recover, between another data, the name and version browser, IP and operative system.
+         * To use this functionality is necessary have loaded previously the getInfo Class. In another words, insert
+         * into your code the next line code:
+         * include "getInfo.class.php";
+         * Example: $mysql->getInfo();
+         * @param void
+         * @return array Return an array with all information of user.
+         */
         public function getInfo(){
                $mysiGI = new mysiGI;
             $aux = $mysiGI->getInfo();
@@ -245,11 +220,14 @@
                 'added_info'    => ''
             );
         }
-        
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE CREA LA TABLA DE LOG's. 
-        // -----------------------------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Function to create the LOG data table.
+         * Example: $mysql->createTableLog();
+         * @param void
+         * @return resource
+         */
+
         public function createTableLog(){
             $query = $this->_LOG_TABLE_DEF;
             $query = @str_replace('<table_log>', $this->_LOG_TABLE_NAME, $query);
@@ -258,46 +236,52 @@
             
             return $result;
         }
-        
-                private static function classAllowed($rights, $class, $join_plus){
-                    $class = strtoupper($class);
-                    if(strlen($class) > 4) $class = substr($class, 0, 4);
-                    $posi = stripos($rights, $class); 
 
-                    if($posi !== false){
-                        $posi--;
-                        if(substr($rights, $posi, 1) == $join_plus ){
-                           return true;
-                        } else {
-                           return false;
-                        }
-                    } else {
-                        if(substr($rights, 0, 4) != "NONE") 
-                            return true;
-                        else
-                            return false;
-                    }
+        /** Private function to intern use
+         * @param $rights
+         * @param $class
+         * @param $join_plus
+         * @return bool
+         */
+        private static function classAllowed($rights, $class, $join_plus){
+            $class = strtoupper($class);
+            if(strlen($class) > 4) $class = substr($class, 0, 4);
+            $posi = stripos($rights, $class);
+
+            if($posi !== false){
+                $posi--;
+                if(substr($rights, $posi, 1) == $join_plus ){
+                   return true;
+                } else {
+                   return false;
                 }
+            } else {
+                if(substr($rights, 0, 4) != "NONE")
+                    return true;
+                else
+                    return false;
+            }
+        }
                 
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE INSERTA EVENTOS EN LA TABLA DE LOG's. 
-        // -----------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to insert a event into LOG table. In addition save, the name and version browser, IP and operative
+         * system and page...
+         * Example: $mysql->insertEntryLog("Access to");
+         * @param string $event String to save into database
+         */
         public function insertEntryLog($event=''){
             $call = debug_backtrace();
             
             if($event == ''){
-                                for($xCount = 2; $xCount < 10; $xCount++){
-                                    if( substr($call[$xCount]['function'], 0, 7) != "include") break;
-                                }
+                for($xCount = 2; $xCount < 10; $xCount++){
+                    if( substr($call[$xCount]['function'], 0, 7) != "include") break;
+                }
                 
-                //if(substr($call[$xCount]['function'], 0, 7) == "include") $xCount++;
+                $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
 
-                                $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
-                                
-                                if($_CLASS_ALLOWED || $this->last_error_id != ""){
-                                    $result = mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', 'Call Control', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
-                                }
+                if($_CLASS_ALLOWED || $this->last_error_id != ""){
+                    $result = mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', 'Call Control', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
+                }
                 
             } else {
                 for($xCount = 1; $xCount < 10; $xCount++){
@@ -308,24 +292,24 @@
                     && substr($call[$xCount]['function'], 0, 7) != "include") break;
                 }
                                 
-                                $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
-                                
-                                if($_CLASS_ALLOWED || $this->last_error_id != ""){
-                                    $result = @mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', '".mysql_real_escape_string($event)."', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
-                                }
+                $_CLASS_ALLOWED = self::classAllowed($GLOBALS['_USER_LOG_MODE'], $call[$xCount]['class'], $GLOBALS['_DEBUG_JOIN_PLUS']);
+
+                if($_CLASS_ALLOWED || $this->last_error_id != ""){
+                    $result = @mysql_query("INSERT INTO ".$this->_LOG_TABLE_NAME." (user_id, fecha, pagina, linea, funcion, params, evento, conexion) VALUES ('".$GLOBALS['_USER_ID']."', '".date("Y-m-d H:i:s", $_SERVER["REQUEST_TIME"])."', '".mysql_real_escape_string($call[$xCount]['class'])."', '".$call[$xCount-1]['line']."', '".$call[$xCount]['function']."', '".urldecode(http_build_query($call[$xCount]['args']))."', '".mysql_real_escape_string($event)."', '".$GLOBALS['_CONNECTION_TYPE']."');\n");
+                }
             }
         }
        
-        // -------------------------------------------------------------------------------------------
-        // FUNCIÓN PARA TENER ACCESO DESDE FUERA DE LA CLASE A DETERMINADAS VARIABLES DE USO PRIVADO. 
-        // -------------------------------------------------------------------------------------------
-        // PARA PERIMITIR QUE SE LEA UNA VARIABLE DESDE FUERA DE LA CLASE DEBE DE ESTAR EL LA LISTA
-        // $alowed_vars. SI NO ESTÁ, NO SE TENDRÁ ACCESO Y SACARÁ UN MENSAJE DE ERROR.
-        // -------------------------------------------------------------------------------------------
-        
-          public function __get($name){
-            $alowed_vars = "completedIn, total_queries, last_insert_id, affected_rows, selected_rows";
-            if(strpos($alowed_vars, $name) !== false){
+        /**
+         * Function to recover variables of private use from out of this class.
+         * To allow recover a variable, the variable must be declare into $_ALLOWED_VARS. If the variable name
+         * does not into this list, the system will deny the request and will show an error message.
+         * @param string $name The variable name to recover
+         * @return string Return the value of variable
+         */
+        public function __get($name){
+            $_ALLOWED_VARS = "completedIn, total_queries, last_insert_id, affected_rows, selected_rows";
+            if(strpos($_ALLOWED_VARS, $name) !== false){
                  return $this->$name;
             } else {
                 eval("\$exists_reference = isset(\$this->".$name.");");
@@ -342,17 +326,22 @@
         // -------------------------------------------------------------------------------------
         // FUNCIÓN QUE TOMA LA HORA ACTUAL DEL SISTEMA Y LA DEVUELVE EN MICROSEGUNDOS.
         // -------------------------------------------------------------------------------------
-          
+
+        /**
+         * Function to recover the system hour and transform to milliseconds.
+         * @return float
+         */
         private function uTime (){
             list ($msec, $sec) = explode(' ', microtime());
             $microtime = (float)$msec + (float)$sec;
             return $microtime;
         }
         
-        // -------------------------------------------------------------------------------------
-        // FUNCIÓN QUE DETECTA LA CODIFICACIÓN DEL TEXTO PARA DESPUÉS SER TRATADA
-        // -------------------------------------------------------------------------------------
-        
+        /**
+         * Function to detect the coded type of a text
+         * @param string $t String to check.
+         * @return string Return if the text has ASCII codification or UTF8 codification
+         */
         private function detectCodeText($t){
             $c = 0;
             $ascii = true;
@@ -379,20 +368,25 @@
             }
             return ($ascii) ? ASCII : UTF_8;
         }
-        
-        // -------------------------------------------------------------------------------------
-        // FUNCIÓN CONVERTIR UN TEXTO EN FORMATO LEGIBLE.
-        // -------------------------------------------------------------------------------------
-        
+
+        /**
+         * Function to check if a text is encoded like ISO-8859-1.  If the response is 'true', the string is coverted to UTF-8,  otherwise, the text is decoded.
+         * Example: $mysql->utf8($row['name']);
+         * @param string $t String to check
+         * @return string if UTF-8 format
+         */
         public function utf8($t){
             return ($this->detectCodeText($t)==ISO_8859_1) ? utf8_encode($t) : utf8_decode($t);
         }
         
-        // -----------------------------------------------------------------------------------------------
-        // CONVIERTE UNA CADENA DE TIPO FECHA, DEL FORMATO ENVIADO A UN ARRAY.
-        // LOS PARÁMETROS DE $format SON LOS MISMOS QUE PARA LA INSTRUCCIÓN DATE DE PHP.
-        // -----------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to convert a date of type string to array format.
+         * The parameters than you can to use into $format variable are the PHP same that.
+         * Example: @extract($this->time2Array($value,"Y-m-d"));
+         * @param $date
+         * @param $format
+         * @return array|bool
+         */
         public function time2Array($date, $format) {
             $masks = array(
                 'd' => '(?P<d>[0-9]{1,2})',
@@ -417,17 +411,18 @@
             return $ret;
         } 
         
-        // -----------------------------------------------------------------------------------------------
-        // CONVIERTE UNA CADENA DE TIPO FECHA, DEL FORMATO ENVIADO A FORMATO UNIX.
-        // LOS PARÁMETROS DE $format SON LOS MISMOS QUE PARA LA IUNSTRUCCION DATEDE PHP.
-        // -----------------------------------------------------------------------------------------------
-        // Los FORMATOS para manejo de las fechas son como la intrucción date() de PHP.
-        // Los valores de cadena SÓLO NÚMEROS o SÓLO LETRAS causan ERROR por no ser considerados fechas.
-        // Hay que tener cuidado ya que tiene comportamientos creados a conciencia. Por ejemplo:
-        // Si la cadena es "2012/33" siendo 2012 el año y 33 el día, nos devuelve el 02-02-2012.
-        // Si la cadena es "oct-01" o "01-oct" siendo oct el mes (Octubre) y 01 el día devuelve 01-10-2012.
-        // Si la cadena es "2012-oct o "oct-2012" siendo 2012 el año y oct el mes (Octubre), devuelve 01-10-2012.
-        
+        /**
+         * Convert a date format, from format received by $format to UNIX format.
+         * The values with only characters or numbers produce a error.
+         * You must to have caution  because this function has behaviours defined to help into the development.
+         * If the string sent is "2012/33", will be returned 02-02-2012.
+         * If the string sent is "oct-01", will be returned 01-10-2012.
+         * If the string sent is "2012-oct", will be returned 01-10-2012.
+         * Example: $mysql->mkTimeFormat(date("d-m-Y H:i:s"), "d-m-Y H:i:s");
+         * @param string $value Is string to convert.
+         * @param string $format Is target format.
+         * @return int Return the UNIX timestamp
+         */
         public function mkTimeFormat($value, $format=""){
             $tm_year = 0; $tm_mon = 0; $tm_mday = 0; $tm_hour = 0; $tm_min = 0; $tm_sec = 0; $f = $format;
             if($f == "") $f = $this->_FORMAT_DATETIME_FRMWRK;
@@ -460,21 +455,22 @@
             return $mktime;
         }
         
-        // ------------------------------------------------------------------------------------------------------------------------------
-        // CONVIERTE UNA CADENA DE TIPO FECHA, DEL FORMATO ENVIADO A FORMATO ENVIADO POR $format.
-        // LOS PARÁMETROS DE $format Y $format_source SON LOS MISMOS QUE PARA LA IUNSTRUCCION DATEDE PHP.
-        // SI $format_source = "" SE TOMA EL FORMATO DE FECHA DE LA CLASE, O BIEN DE _FORMAT_DATETIME_FRMWRK, O DE _FORMAT_DATE_FRMWRK.
-        // SI $format = "" SE TOMA EL FORMATO DE FECHA DE LA CLASE DE _FORMAT_DATETIME_DB.
-        // ------------------------------------------------------------------------------------------------------------------------------
-        // Los FORMATOS para manejo de las fechas son como la intrucción date() de PHP.
-        // Los valores de cadena SÓLO NÚMEROS o SÓLO LETRAS causan ERROR por no ser considerados fechas.
-        // Hay que tener cuidado ya que tiene comportamientos creados a conciencia. Por ejemplo:
-        // Si la cadena es "2012/33" siendo 2012 el año y 33 el día, nos devuelve el 02-02-2012.
-        // Si la cadena es "oct-01" o "01-oct" siendo oct el mes (Octubre) y 01 el día devuelve 01-10-2012.
-        // Si la cadena es "2012-oct o "oct-2012" siendo 2012 el año y oct el mes (Octubre), devuelve 01-10-2012.
-        // EJ: $mysql->toDateFormat("2012-oct-10","Y-m-d", "d-m-Y");
-        // ------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Convert a string with date format, from format seted by $format_source variable to $format variable.
+         * The values with only characters or numbers produce a error.
+         * If $format_source is empty, by default take the local format defined into class. The possible formats are
+         * defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
+         * If $format is empty, by default take the local format defined into class in the _FORMAT_DATETIME_DB variable
+         * You must to have caution  because this function has behaviours defined to help into the development.
+         * If the string sent is "2012/33", will be returned 02-02-2012.
+         * If the string sent is "oct-01", will be returned 01-10-2012.
+         * If the string sent is "2012-oct", will be returned 01-10-2012.
+         * Example: $mysql->toDateFormat("2012-oct-10","Y-m-d", "d-m-Y");
+         * @param string $value String to transform.
+         * @param string $format_source Source format
+         * @param string $format Target format
+         * @return Return a date type.
+         */
         public function toDateFormat($value, $format_source="", $format=""){
             $mktime = 0;
             if($this->isNumber(substr($value, 0,4))) $mktime = strtotime($value);
@@ -495,16 +491,20 @@
             return date($format, $mktime);
         }
         
-        // -----------------------------------------------------------------------------------------------
-        // COMPRUEBA SI LA CADENA INTRODUCIDA ES UN TIPO FECHA. SE LE DEBE PASAR EL FORMATO PARA COMPARAR.
-        // LOS PARÁMETROS DE $format SON LOS MISMOS QUE PARA LA IUNSTRUCCION DATEDE PHP.
-        // -----------------------------------------------------------------------------------------------
-        // EJ: $mysql->isDate("2012/33", "Y/d")     Devolvería 02-02-2012 y por eso, devuelve true
-        // EJ: $mysql->isDate("oct-01", "m-d")         Devolvería 01-10-2012 y por eso, devuelve true
-        // EJ: $mysql->isDate("oct", "m")            Devolvería error y por eso, devuelve false
-        // EJ: $mysql->isDate("31", "d")            Devolvería error y por eso, devuelve false
-        // EJ: $mysql->isDate("31/10/2012", '')        Devolvería 31-10-2012 y por eso, devuelve true
-        
+        /**
+         * Check if the sent string is a date type. You must send the format to check.
+         * The parameters than you can to use into $format variable are the PHP same that.
+         * Examples:
+         *      $mysql->isDate("2012/33", "Y/d") is transformed to 02-02-2012, like result will be return 'true'.
+         *      $mysql->isDate("oct-01", "m-d") is transformed to 01-10-2012, like result will be return 'true'.
+         *      $mysql->isDate("oct", "m") will be return error, like result will be return 'false'.
+         *      $mysql->isDate("31", "d") will be return error, like result will be return 'false'.
+         *      $mysql->isDate("31/10/2012", '') is transformed to 31-10-2012, like result will be return 'true'.
+         * @param string $value String to check.
+         * @param string $format Format defined.
+         * @return bool Return true or false.
+         */
+
         public function isDate($value, $format=""){
             if($this->isNumber(substr($value, 0,4))) $mktime = strtotime($value);
 
@@ -528,19 +528,21 @@
             return true; //date("d-m-Y H:i:s", $mktime);
         }
         
-        // -----------------------------------------------------------------------------------------------
-        // COMPRUEBA SI EL VALOR ENVIADO POR $value ES UN NÚMERO
-        // -----------------------------------------------------------------------------------------------
-        
+        /**
+         * Check if the sent value is a number
+         * @param number $value Value to test
+         * @return bool Return true or false.
+         */
         public function isNumber($value){
             if (is_numeric($value)) return true;
             return false;
         }
-        
-        // -----------------------------------------------------------------------------------------------
-        // COMPRUEBA SI EL VALOR ENVIADO POR $value ES UNA CADENA
-        // -----------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Check if the sent value is a string
+         * @param string $value Value to test.
+         * @return bool Return true or false.
+         */
         public function isString($value){
             if ($this->isNumber($value) || $this->isDate($value) || is_array($value) || is_object($value)) return false;
             return true;
@@ -552,7 +554,20 @@
         // Devuelve un ARRAY con el formato array("d" => $d, "h" => $h, "m" => $m, "s" => $s) en dónde cada inicial de la 
         // clave del array indica la medida de tiempo
         // ------------------------------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Function to calculate the days difference between two dates like days, hours, minutes and seconds.
+         * @param $dInit
+         * @param $dEnd
+         * @param string $dInit_format Is Optional. * If is empty, by default take the local format defined into class.
+         * The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values
+         * is time or date type.
+         * @param string $dEnd_format Is Optional. * If is empty, by default take the local format defined into class.
+         * The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values
+         * is time or date type.
+         * @return array Will be returned an array with the format array("d" => 0, "h" => 1, "m" => 33, "s" => 2)
+         * with the result.
+         */
         function elapsedTime($dInit, $dEnd, $dInit_format="", $dEnd_format=""){
             $f1 = $dInit_format;
             $f2 = $dEnd_format;
@@ -599,12 +614,18 @@
             return array("d" => $d, "h" => $h, "m" => $m, "s" => $s);
         }
         
-        // -----------------------------------------------------------------------------------------------
-        // REALIZA LA CONEXIÓN A LA BASE DE DATOS
-        // -----------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to connect with the database.
+         * @param string $db Name of database to connect
+         */
         public function connect($db = ""){
-            if(!isset($this->resource)){
+            //Overwritting default behavior to handle different localhost, dev and production configurations
+            $this->_USER_DEVELOPMENT = DB_USER;
+            $this->_USER_PRODUCTION = DB_USER;
+            $this->_PASS_DEVELOPMENT = DB_PASSWORD;
+            $this->_PASS_PRODUCTION = DB_PASSWORD;
+
+            if($db != ""){
                 if($_SERVER['HTTP_HOST'] == "localhost"){
                     $this->resource=(mysql_connect($_SERVER['HTTP_HOST'], $this->_USER_DEVELOPMENT, $this->_PASS_DEVELOPMENT)) or die(mysql_error());
                     mysql_select_db($db==""?$this->_DATABASE_NAME_DEVELOPMENT:$db, $this->resource) or die(mysql_error());
@@ -612,15 +633,41 @@
                     $this->resource=(mysql_connect("localhost", $this->_USER_PRODUCTION, $this->_PASS_PRODUCTION)) or die(mysql_error());
                     mysql_select_db($db==""?$this->_DATABASE_NAME_PRODUCTION:$db, $this->resource) or die(mysql_error());
                 }
+
+                mysql_query("SET NAMES '".$this->_CHARSET_PREFERRED."'",$this->resource);
+                mysql_query("SET CHARACTER SET ".$this->_CHARSET_PREFERRED, $this->resource);
+                if($this->_CHARSET_PREFERRED == "utf8")
+                    mysql_query("SET SESSION collation_connection = '".$this->_CHARSET_PREFERRED."_unicode_ci'", $this->resource);
+                else {
+                    mysql_query("SET SESSION collation_connection = '".$this->_CHARSET_PREFERRED."'", $this->resource);
+                }
+
+                if($this->_ENABLED_LOG){
+                    $result = mysql_query("SHOW TABLES LIKE '".$this->_LOG_TABLE_NAME."';");
+                    $this->last_query = "SHOW TABLES LIKE '".$this->_LOG_TABLE_NAME."';";
+                    $row = mysql_fetch_row($result);
+                    $row = $row[0];
+
+                    if($row == $this->_EMPTY_FIELD_BY_DEFAULT){
+                        $resultCreate = $this->createTableLog();
+                    }
+
+                    // Eliminamos los registros sobrantes.
+                    if($this->_SIZE_LOG_IN_DAYS != 0){
+                        $result = mysql_query("DELETE FROM ".$this->_LOG_TABLE_NAME." WHERE fecha < DATE_SUB(NOW(),INTERVAL ".$this->_SIZE_LOG_IN_DAYS." DAY)");
+                        $this->last_query = "DELETE FROM ".$this->_LOG_TABLE_NAME." WHERE fecha < DATE_SUB(NOW(),INTERVAL ".$this->_SIZE_LOG_IN_DAYS." DAY)";
+                    }
+                }
+
+                $this->_CURRENT_DB = $db;
             }
-            
-            if($db != "") $this->_CURRENT_DB = $db;
         }
         
-        // -----------------------------------------------------------------------------------------------
-        // SELEECIONA UNA BASE DE DATOS
-        // -----------------------------------------------------------------------------------------------
-        
+        /**
+         * Select a database.
+         * @param $db_name
+         * @return bool
+         */
         public function usedb($db_name){
             echo "Function usedb() is deprecated.";
             return false;
@@ -630,14 +677,16 @@
             }
         }
         
-        // ------------------------------------------------------------------------------------------------------------------------------------------
-        // REALIZA LA CONSULTA A LA BASE DE DATOS ENVIADA POR $consulta.
-        // ------------------------------------------------------------------------------------------------------------------------------------------
-        // Si _SHOW_CONTROL_MESSAGES está establecido a true, se muestran los mensajes de tipo ERROR en pantalla. Sólo para depuración de errores.
-        // Si _SHOW_WARNING_ERROR está establecido a true, se muestran los mensajes de tipo WARNING en pantalla. Sólo para depuración de errores.
-        // Si _STOP_WARNING_ERROR está establecido a true, se parará la ejecución como si un ERROR se tratase.  Sólo para depuración de errores.
-        // ------------------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to make requests to database.
+         * If _SHOW_CONTROL_MESSAGES is setet to 'true', will be show the ERROR messages into screen.
+         * If _SHOW_WARNING_ERROR is setet to 'true', will be show the WARNING messages into screen.
+         * If _STOP_WARNING_ERROR is setet to 'true', the execution is stopped like if had have occurred a fatal error.
+         * @param string $query Sentence to execute.
+         * @param string $output Type of data to return. The possible options are: ARRAY_A, ARRAY_N, OBJECT.
+         * @param bool $prepare For execute sentences of lines multiple like FUNCTIONS or PROCEDURES
+         * @return resource Return a pointer to resulting object
+         */
         public function query($query, $output = "", $prepare = true){
             $this->total_queries++;
             $this->selected_rows = 0;
@@ -659,7 +708,7 @@
                     $this->error_method   = 'QUERY';
                     return false;
                 }
-                
+
                 $this->resource = mysql_query($query);
                 //$result = $this->resource;
                 $this->last_query = $query;
@@ -695,14 +744,19 @@
                             
                             if($this->_ENABLED_LOG) $this->insertEntryLog($this->last_query);
                             
-                        } // Fin if (!$this->resource)
-                    } // Fin if (trim($sentence) != "")
-                } // Fin foreach
+                        } // End If (!$this->resource)
+                    } // End if (trim($sentence) != "")
+                } // End foreach
             } 
             
             return $this->resource;
         }
-        
+
+        /**
+         * Function of private use. Is used by 'query' function to return the resulting data in a specific format.
+         * @param array|object|string $output Return the result. This field depends of output format defined in 'query' function.
+         * @return array|stdClass
+         */
         private function getContain($output){
             if($this->selected_rows == 1){
                 $result = @mysql_fetch_array($this->resource, MYSQL_ASSOC);
@@ -727,7 +781,12 @@
                 if(!empty($result)) return array_values($result); else null;
             }
         }
-        
+
+        /**
+         * Function to prepare complex instructions or several queries simultaneously.
+         * @param string $queries List of queries or sentence of lines multiple.
+         * @return array Return string with the right format to execute into server.
+         */
         public function prepare_queries($queries){
             $queries_list = array();
             $xCount = 0;
@@ -780,10 +839,10 @@
             return $queries_list;
         }
         
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE RECUPERA EL NÚMERO DE TUPLAS O FILAS SELECCIONADAS. 
-        // -----------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to recover the rows number of last executed query.
+         * @return int Number of returned rows
+         */
         private function num_rows(){
             if($this->resource){
                 $n = mysql_num_rows($this->resource);
@@ -794,10 +853,11 @@
             }
         }
         
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE RECUPERA EL NÚMERO DE TUPLAS O FILAS AFECTADAS EN UN UPDATE O DELETE. 
-        // -----------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to recover the affected rows number of last executed query. This value only change when a UPDATE or DELETE sentence is executed.
+         * If you execute several sentences with 'prepare' parameter seted to 'true', this value will be the sum of all queries.
+         * @return int Number of affected rows
+         */
         private function affected_rows(){
             $n = mysql_affected_rows();
             if (mysql_errno() != 0) $this->showError();
@@ -806,11 +866,10 @@
             return $n;
         }
         
-        // -----------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN QUE ACTUALIZA LAS VARIABLES DE ERROR, GUARDANDO EL ÚLTIMO CÓDIGO Y MENSAJE DE ERROR.
-        // ADEMÁS MUESTRA LOS MENSAJES DE ERROR SI PROCEDE. 
-        // -----------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Function to update and show the last occurred error.
+         * @return void
+         */
         public function showError(){
                     error_reporting(E_ALL^E_NOTICE);
                     $call = debug_backtrace();
@@ -843,20 +902,29 @@
                             $this->error_text = '<b style="color:'.$this->_ERROR_COLOR.'">FATAL ERROR</b>:<br>Error: ' . $this->last_error_id . ": " . $this->last_error_msg . '<br /><b style="color:'.$this->_ERROR_COLOR.'">QUERY: </b>'.$this->last_query."<br />$siteError<br />";
                     }
         }
-        
+
+        /**
+         * Function to get next auto increment value from a table.
+         * @param string $table Table name
+         * @param string $db Database name. By default the database name used will be the seted by _CURRENT_DB variable.
+         * @return string Return the next value
+         */
         public function getNextAutoIncrement($table, $db=""){
             if($db == "") $db = $this->_CURRENT_DB;
             return $this->getValue("SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = '".$table."' AND table_schema = '".$db."' ;");
         }
                 
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // REALIZA LA CONSULTA A LA BASE DE DATOS ENVIADA POR $sentence Y DEVUELVE EL VALOR DEL CAMPO SOLICITADO.
-        // ES ÚNICAMENTE PARA CONSULTAS EN LAS QUE SE SOLICITA UN ÚNICO DATO Y UNA ÚNICA COINCIDENCIA.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // EJ.: SELECT name FROM clientes WHERE id = 1;
-        // Si no hay coincidencias devuelve el valor por defecto establecido por _EMPTY_FIELD_BY_DEFAULT
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Funtion to recover a specific value. Make the request to database sent by first parameter and, if the query
+         * is a type of SHOW, EXPLAIN, ... allow choice the column to return setting the second parameter.
+         * If the result is empty, by default the value seted into _EMPTY_FIELD_BY_DEFAULT is returned.
+         * Example:
+         *      $mysql->getValue("SELECT name FROM customers WHERE id = 1;");
+         *      $mysql->query("SHOW FULL COLUMNS FROM customers", 1);
+         * @param string $sentence Query to execute.
+         * @param int $field_number Column to return
+         * @return string|number Resulting value.
+         */
         public function getValue($sentence, $field_number = 0){
             $result = $this->query($sentence);
 
@@ -883,7 +951,17 @@
         // echo "id = ".$id.", name = ".$name;
         // Si no hay coincidencias devuelve el valor por defecto establecido por _EMPTY_FIELD_BY_DEFAULT
         // -----------------------------------------------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Make the request to database and returns a list with the values of the requested fields.
+         * The list is a array which can then be retrieved using the 'list()' PHP instruction, or treat it as a PHP array in every another issue.
+         * If no match returns the value set by default _EMPTY_FIELD_BY_DEFAULT.
+         * Example:
+         *      // Later of execute the next query, you can recover this values like $id and $name.
+         *      list($id, $name) = $this->getValues('SELECT id, name FROM customers WHERE id = 1;');
+         * @param string $sentence Query to execute.
+         * @return array Array with the result of execute the query.
+         */
         public function getListValues($sentence){
             $result = $this->query($sentence);
             
@@ -912,22 +990,29 @@
                 return $list;
             }
         }
-        
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // ELIMINA TODAS LAS FILAS O TUPLAS DE LA TABLA $table QUE CUMPLAN LA CONDICIÓN $cond
-        // -----------------------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * Function to delete rows from a table
+         * @param string $table Table name.
+         * @param string $cond String with the conditional sentence.
+         * Example:
+         *      $mysql->delete("customers", "id = 1");
+         */
         public function delete($table, $cond){
             $sentence = "DELETE FROM ".$table." WHERE ".$cond;
             $this->query($sentence);
         }
         
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // RECUPERA LOS RESULTADOS REFERENCIADOS POR $this->resource COMO UN ARRAY ASOCIATIVO DE NÚMEROS, NOMBRES ASOCIADOS O AMBOS
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // LA VARIABLE $type INDICA CÓMO SE HARÁ LA ASOCIACIÓN. SUS VALORES PUEDEN SER MYSQL_NUM, MYSQL_ASSOC O MYSQL_BOTH. 
-        // POR DEFECTO ES MYSQL_BOTH.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Retrieves results referenced by $this->resource (the MySQL connection identifier) as an associative array of numbers, names, or both.
+         * Example:
+         *      $result = $mysql->query("SELECT * FROM names WHERE 1;");
+         *      while($row = $mysql->fetchArray()){
+         *          echo $row[0]." ".$mysql->utf8($row['name']);
+         *      }
+         * @param int $type Is optional. The sent parameter indicates how the partnership will be. Its values can be MYSQL_NUM, MYSQL_ASSOC or MYSQL_BOTH. By default, MYSQL_BOTH is used.
+         * @return array
+         */
         public function fetchArray($type=MYSQL_BOTH){
             $result = @mysql_fetch_array($this->resource, $type);
             if(mysql_errno() != 0){
@@ -937,12 +1022,11 @@
             return $result;
         }
         
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // RECUPERA LOS RESULTADOS REFERENCIADOS POR $this->resource COMO OBJETOS.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // LA VARIABLE $class INDICA QUE EL OBJETO SE TRANSFERIRÁ A LA CLASE SUMINISTRADA.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         *  Retrieves results referenced by $this->resource (the MySQL connection identifier) as an object.
+         * @param string $class IS the name of the class to instantiate to set the properties and return. In other words, it indicates the object class name resulting where will be transferred.
+         * @return object|stdClass
+         */
         function fetchObject($class=""){
             if($class == "") $result = @mysql_fetch_object($this->resource);
             else  $result = @mysql_fetch_object($this->resource, $class);
@@ -953,13 +1037,12 @@
             
             return $result;
         }
-        
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // Obtiene el nombre del campo especificado de un resultado asociado a $this->resource.
-        // -----------------------------------------------------------------------------------------------------------------------------------
-        // LA VARIABLE $num INDICA EL NÚMERO DE CAMPO PARA EXTRAER EL NOMBRE.
-        // -----------------------------------------------------------------------------------------------------------------------------------
 
+        /**
+         * Recover a specific field name of a column. The source to extract this information is the associate to $this->resource.
+         * @param int $num indicates the field number to read the name
+         * @return string
+         */
         function field_name($num){
             return mysql_field_name($this->resource, $num);
         }
@@ -978,7 +1061,18 @@
         // $exportdrop:
         // Indica si se añadirá DROP antes de la creación de cada tabla.
         // -------------------------------------------------------------------------------------------------------------------------------------
-        
+
+        /**
+         * Function to export, complete or partially, a database.
+         * Examples:
+         *      $mysql->export("export.txt");
+         *      $mysql->export("export.txt", true);
+         *      $mysql->export("export.txt", false, 'enterprises,customers', 'bz2');
+         * @param string $exportfilename The target filename.
+         * @param bool $exportdrop It is optional. Indicates if the table must be dropped before to re-create it.
+         * @param bool|array $exporttables It is optional. Its a array that contains the tables of the database that will be stored. You can specify a 'false' value to indicate that all tables of the database are exported. Its default value is false.
+         * @param bool $exportcompresion It is optional. If this parameter is seted to 'true', the file will be compressed.
+         */
         public function export($exportfilename, $exportdrop=false, $exporttables=false, $exportcompresion=false){
             // Definimos la base de datos de desarrollo o produción
             if($_SERVER['HTTP_HOST'] == "localhost"){
@@ -1115,40 +1209,40 @@ $insert_into_query
             }
         }
         
-        // -------------------------------------------------------------------------------------------------------------------------------------------
-        // LIBERA TODA LA MEMORIA ASOCIADA A $this->resource
-        // -------------------------------------------------------------------------------------------------------------------------------------------
-        // Solo necesita ser llamado si se está preocupado por la cantidad de memoria que está siendo usada por las consultas que devuelven conjuntos 
-        // de resultados grandes. Toda la memoria de resultados asociada se liberará automaticamente al finalizar la ejecución del script. 
-        // -------------------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Free / liberate all memory referenced by $this->resource (the MySQL connection identifier). Only needs to be requested if you are executing queries that required too much memory. The natural behaviour is free / liberate all the memory when the script is ended
+         * Example:
+         *      $mysql->free();
+         * @param void
+         * @return void
+         */
         public function free(){
             mysql_free_result($this->resource);
         }
         
-        // -------------------------------------------------------------------------------------------------------------------------------------------
-        // CIERRA LA CONEXIÓN NO PERSISTENTE DEL SERVIDOR DE MYSQL QUE ESTÁ ASOCIADA A $this->resource.
-        // -------------------------------------------------------------------------------------------------------------------------------------------
-        
+        /**
+         * Close MySQL connection referenced by $this->resource (the MySQL connection identifier).
+         * Example:
+         *      $mysql->disconnect();
+         * @param void
+         * @return void
+         */
         public function disconnect(){ 
             if ($this->resource){ 
                 return mysql_close($this->resource); 
             } 
         }
-        
+
         /**
-         * 
-         * 
-         **/
-        
-        /**
-         * Check that doesn't exists bad words in code sent.
+         * Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
          * If file has one of array words returns a message error and execution is give by terminated.
+         * Example:
+         *      $lines = file('export.sql');
+         *      $badWords = $mysql->checkBadWords($lines);
          * @param type $array Array of queries that contain the code to check.
-         * @return boolean If return value is true means the code contain bad words.
+         * @return boolean If return value is 'true' means the code contain bad words.
          */
         public function checkBadWords($array){
-            //$badWords = array('CREATE DATABASE', 'DELETE', 'INSERT', 'UPDATE', 'DROP DATABASE', 'USE');
             $badWords = array('CREATE DATABASE', 'DROP DATABASE', 'USE');
             
             $halt = false;
@@ -1178,8 +1272,6 @@ $insert_into_query
          * @param type $text Is the array / text with the queries SQL
          * @return string Returns a string clean of commets and white blanks
          */
-        
-        
         public function clean($text){
             if(!is_array($text)){
                 $lines = explode("\n", $text);
