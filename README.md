@@ -17,7 +17,7 @@ Just then, first of all is to set the user, password and database associated to 
 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
-<p style='color:red'>Methods</p>
+#Methods
 ##checkBadWords
 __bool checkBadWords($array)__
 
