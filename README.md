@@ -18,7 +18,7 @@ Just then, first of all is to set the user, password and database associated to 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
 #Methods
-## [checkBadWords]
+##checkBadWords
 __bool checkBadWords($array)__
 
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
@@ -34,7 +34,7 @@ $lines = file('export.sql');
 $badWords = $mysql->checkBadWords($lines);
 ```
 
-##[[checkToken]]
+##checkToken
 __bool checkToken( string $string, [string $token = ""])__
 
 Function to compare the sent token into $token and the string returned through by $string.
