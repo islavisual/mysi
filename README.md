@@ -26,6 +26,7 @@ Check that does not exists bad words in code sent. Bad word is equivalent to pro
 If file has one of array words returns a message error and execution is give by terminated. 
 ###Return:
 *  If return value is 'true' means the code contain bad words.
+
 ###Parameters:
 *  array $array - Array of queries that contain the code to check.
 ```php
@@ -53,6 +54,7 @@ __string clean( type $text)__
 Clear text and prepare to execute.
 ###Return
 *  Returns a string clean of commets and white blanks.
+
 ###Parameters
 * type $text - Is the array / text with the queries SQL
 ```php
