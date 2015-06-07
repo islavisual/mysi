@@ -51,7 +51,7 @@ __string clean( type $text)__
 
 Clear text and prepare to execute.
 ###Return
-*  Returns a string clean of commets and white blanks
+*  Returns a string clean of commets and white blanks.
 ###Parameters
 * type $text - Is the array / text with the queries SQL
 ```php
