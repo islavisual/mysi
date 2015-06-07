@@ -18,7 +18,7 @@ Just then, first of all is to set the user, password and database associated to 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
 #Methods
-<h2 style="color:#ae0035">checkBadWords</h2>
+## [checkBadWords]
 __bool checkBadWords($array)__
 
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
