@@ -1,4 +1,4 @@
-#mysi 1.02
+#mysi 1.03
 
 MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
 
@@ -45,6 +45,18 @@ Return a boolean value, 'true' if both tokens are the same, 'false' in another i
 -  string $token - Encrypted string to compare.
 ```php
 $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
+```
+
+##clean
+__string clean( type $text)__
+
+Clear text and prepare to execute.
+#Return
+*  Returns a string clean of commets and white blanks
+#Parameters
+* type $text - Is the array / text with the queries SQL
+```php
+$mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
 ```
 
 
