@@ -21,13 +21,13 @@ In the definition class, every function, is commented through to PHP DOC to make
 ##checkBadWords
 __bool checkBadWords($array)__
 
-Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
+>Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
-If file has one of array words returns a message error and execution is give by terminated. 
-<h4 style="color:#385a5">Return</h4>
+>If file has one of array words returns a message error and execution is give by terminated. 
+#####Return
 *  If return value is 'true' means the code contain bad words.
 
-####Parameters:
+#####Parameters:
 *  array $array - Array of queries that contain the code to check.
 ```php
 $lines = file('export.sql');
