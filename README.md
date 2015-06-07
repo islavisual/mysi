@@ -18,8 +18,7 @@ Just then, first of all is to set the user, password and database associated to 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
 #Methods
-checkBadWords
-***
+##checkBadWords
 __bool checkBadWords($array)__
 
 >Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
@@ -27,10 +26,10 @@ __bool checkBadWords($array)__
 >If file has one of array words returns a message error and execution is give by terminated. 
 
 #####Return
-_If return value is 'true' means the code contain bad words._
+- If return value is 'true' means the code contain bad words._
 
 #####Parameters:
-_array $array - Array of queries that contain the code to check._
+- array $array - Array of queries that contain the code to check._
 
 #####Example
 ```php
