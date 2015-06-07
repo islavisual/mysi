@@ -26,27 +26,28 @@ __bool checkBadWords($array)__
 >If file has one of array words returns a message error and execution is give by terminated. 
 
 #####Return
->*  If return value is 'true' means the code contain bad words.
+>  If return value is 'true' means the code contain bad words.
 
 #####Parameters:
->*  array $array - Array of queries that contain the code to check.
+>  array $array - Array of queries that contain the code to check.
 
+#####Example
 ```php
 $lines = file('export.sql');
 $badWords = $mysql->checkBadWords($lines);
 ```
 
 ##checkToken
->bool checkToken( string $string, [string $token = ""])
+__bool checkToken( string $string, [string $token = ""])__
 
-Function to compare the sent token into $token and the string returned through by $string.
+>Function to compare the sent token into $token and the string returned through by $string.
 
 #####Return
->*  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+>  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 #####Parameters
->*  string $string - Original string to compare.
->*  string $token - Encrypted string to compare.
+>  string $string - Original string to compare.
+>  string $token - Encrypted string to compare.
 
 #####Example
 ```php
