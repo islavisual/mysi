@@ -26,9 +26,9 @@ __bool checkBadWords($array)__
 >If file has one of array words returns a message error and execution is give by terminated. 
 #####Return
 *  If return value is 'true' means the code contain bad words.
-
 #####Parameters:
 *  array $array - Array of queries that contain the code to check.
+
 ```php
 $lines = file('export.sql');
 $badWords = $mysql->checkBadWords($lines);
