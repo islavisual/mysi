@@ -260,13 +260,46 @@ __void free()__
 
 >Free / liberate all memory referenced by $this->resource (the MySQL connection identifier). Only needs to be requested if you are executing queries that required too much memory. The natural behaviour is free / liberate all the memory when the script is ended
 
->Example: $mysql->free();
-
-Parameters
+#####Parameters
 >Has no parameters.
 
+#####Example
+```php
+$mysql->free();
+```
 
+##getInfo
+__array getInfo()__
 
+>Function to recover the client data that browse by the system / web.
+
+>Recover, between another data, the name and version browser, IP and operative system. To use this functionality is necessary have loaded previously the getInfo Class. In another words, insert into your code the next line code: include "getInfo.class.php"; 
+
+>Returns an array with all information of user.
+
+#####Parameters
+>Has no parameters.
+
+#####Example
+```php
+$mysql->getInfo();
+```
+
+##getListValues
+__array getListValues( string $sentence)__
+
+>Make the request to database and returns a list with the values of the requested fields.
+
+>The list is a array which can then be retrieved using the 'list()' PHP instruction, or treat it as a PHP array in every another issue. If no match returns the value set by default _EMPTY_FIELD_BY_DEFAULT. 
+
+>Returns an array with the result of execute the query.
+    
+#####Parameters
+* string $sentence - Query to execute.
+
+#####Example
+// Later of execute the next query, you can recover this values like $id and $name. 
+list($id, $name) = $this->getValues('SELECT id, name FROM customers WHERE id = 1;');
 
 
 
