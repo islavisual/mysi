@@ -41,8 +41,9 @@ $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 ```
 ###Return
 Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
-Parameters:
+###Parameters:
     string $string - Original string to compare.
+    
     string $token - Encrypted string to compare.
 
 
