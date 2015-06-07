@@ -1,11 +1,11 @@
-mysi 1.02
-====
+#mysi 1.02
+
 MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
 
 With this simple, but complete, PHP class can be make queries and getting a single value, get an array with the all rows, export the DDBB to a text file compressed or uncompressed, save query logs, recover in every moment the last ID inserted, rows affected, convert easyly dates from all formats to MySQL format, and more functionalities.
 
 Way to use
-----------
+==========
    <code>include "mysi.php";</code><br>
    <code>$mysi = new MYSI;</code>
 
@@ -17,7 +17,24 @@ Just then, first of all is to set the user, password and database associated to 
 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
+Methods
+=======
+checkBadWords
+-------------
+boolean checkBadWords($array)
+Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
+
+If file has one of array words returns a message error and execution is give by terminated. Example: $lines = file('export.sql'); $badWords = $mysql->checkBadWords($lines);
+Return:
+If return value is 'true' means the code contain bad words.
+Parameters:
+    array $array - Array of queries that contain the code to check.
+
+
+
+
 Examples:
+<pre>
 <code>
     $mysi->connect();
     $mysi->usedb('database_name');
@@ -27,5 +44,5 @@ Examples:
     $mysi->real_escape(sprintf("SELECT * FROM users WHERE user='%s' AND password='%s'");
     $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
 </code>
-
+</pre>
 We have detail description in http://www.islavisual.com/articulos/desarrollo_web/clase-en-php-para-mysql-de-islavisual URL, although is writed in spanish.
