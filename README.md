@@ -123,6 +123,53 @@ __string decodeToken( string $token)__
 $mysql->decodeToken("jHd8dnWBUVtNd4Nvf1CcnKKhlKTlJsgn1GflpKMm6qblJRamKigUBqqlqWgTQ==");
 ```
 
+##delete
+__void delete( string $table, string $cond)__
+
+>Function to delete rows from a table
+
+> This function no returns anything.
+
+#####Parameters:
+* string $table - Table name.
+* string $cond - String with the conditional sentence. 
+
+#####Example
+```php
+$mysql->delete("customers", "id = 1");
+```
+
+##disconnect
+__void disconnect()__
+> Close MySQL connection referenced by $this->resource (the MySQL connection identifier). 
+
+> This function no returns anything.
+
+#####Parameters:
+*  Has no parameters.
+
+#####Example
+```php
+    $mysi->connect();
+```
+
+##elapsedTime
+__array elapsedTime( date $dInit, date $dEnd, [string $dInit_format = ""], [string $dEnd_format = ""])__
+
+>Function to calculate the days difference between two dates like days, hours, minutes and seconds.
+
+>Will be returned an array with the format array("d" => 0, "h" => 1, "m" => 33, "s" => 2) with the result.
+
+#####Parameters:
+* $dInit date $dInit - Initial date.
+* $dEnd date $dEnd - Final date.
+* string $dInit_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
+* string $dEnd_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
+
+
+
+
+
 
 #Some Examples:
 ```php
