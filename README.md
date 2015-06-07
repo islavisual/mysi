@@ -24,10 +24,10 @@ __bool checkBadWords($array)__
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
 If file has one of array words returns a message error and execution is give by terminated. 
-###Return:
+####Return:
 *  If return value is 'true' means the code contain bad words.
 
-###Parameters:
+####Parameters:
 *  array $array - Array of queries that contain the code to check.
 ```php
 $lines = file('export.sql');
@@ -38,10 +38,10 @@ $badWords = $mysql->checkBadWords($lines);
 __bool checkToken( string $string, [string $token = ""])__
 
 Function to compare the sent token into $token and the string returned through by $string.
-###Return
+####Return
 *  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
-###Parameters:
+####Parameters:
 *  string $string - Original string to compare.
 *  string $token - Encrypted string to compare.
 ```php
@@ -52,10 +52,10 @@ $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 __string clean( type $text)__
 
 Clear text and prepare to execute.
-###Return
+####Return
 *  Returns a string clean of commets and white blanks.
 
-###Parameters
+####Parameters
 * type $text - Is the array / text with the queries SQL
 ```php
 $mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
@@ -66,10 +66,10 @@ __bool compareTokens( string $token1, [string $token2 = ""])__
 
 Function to check two tokens. If $token1 is empty take to compare the returned token by the _ENCODED_TOKEN
 
-###Return
+####Return
 *  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
-###Parameters:
+####Parameters:
 *  string $token1 - First token to compare.
 *  string $token2 - Second token to compare.
 
