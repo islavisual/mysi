@@ -42,8 +42,8 @@ Function to compare the sent token into $token and the string returned through b
 *  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 ####Parameters:
-*  string $string - Original string to compare.
-*  string $token - Encrypted string to compare.
+>  string $string - Original string to compare.
+>  string $token - Encrypted string to compare.
 ```php
 $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 ```
