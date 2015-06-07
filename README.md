@@ -108,6 +108,22 @@ __resource createTableLog()__
 $mysql->createTableLog();
 ```
 
+##decodeToken
+__string decodeToken( string $token)__
+
+>Function to decrypted tokens.
+
+> Returns a string decrypted.
+
+#####Parameters:
+* string $token - String to decode
+
+#####Example
+```php
+$mysql->decodeToken("jHd8dnWBUVtNd4Nvf1CcnKKhlKTlJsgn1GflpKMm6qblJRamKigUBqqlqWgTQ==");
+```
+
+
 #Some Examples:
 ```php
     $mysi->connect();
