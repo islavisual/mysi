@@ -23,8 +23,8 @@ __bool checkBadWords($array)__
 
 >Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
->If file has one of array words returns a message error and execution is give by terminated. 
->If return value is 'true' means the code contain bad words.*
+> If file has one of array words returns a message error and execution is give by terminated. 
+> If return value is 'true' means the code contain bad words.*
 
 #####Parameters:
 * array $array - Array of queries that contain the code to check.
@@ -38,8 +38,9 @@ $badWords = $mysql->checkBadWords($lines);
 ##checkToken
 __bool checkToken( string $string, [string $token = ""])__
 
->Function to compare the sent token into $token and the string returned through by $string.
->Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+> Function to compare the sent token into $token and the string returned through by $string.
+
+> Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 #####Parameters
 * string $string - Original string to compare.
@@ -53,12 +54,14 @@ $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 ##clean
 __string clean( type $text)__
 
-Clear text and prepare to execute.
-####Return
-*  Returns a string clean of commets and white blanks.
+> Clear text and prepare to execute.
 
-####Parameters
-* type $text - Is the array / text with the queries SQL
+> Returns a string clean of commets and white blanks.
+
+#####Parameters
+* type $text - Is the array / text with the queries SQL.
+
+#####Example
 ```php
 $mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
 ```
@@ -66,24 +69,29 @@ $mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
 ##compareTokens
 __bool compareTokens( string $token1, [string $token2 = ""])__
 
-Function to check two tokens. If $token1 is empty take to compare the returned token by the _ENCODED_TOKEN
+> Function to check two tokens. If $token1 is empty take to compare the returned token by the _ENCODED_TOKEN
 
-####Return
-*  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+> Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
-####Parameters:
+#####Parameters:
 *  string $token1 - First token to compare.
 *  string $token2 - Second token to compare.
 
+#####Example
+```php
+$mysql->compareTokens("6qblJRamKigUBqqlqWgTQ==");
+```
 
 ##connect
 __void connect( [string $db = ""])__
+> Function to connect with the database.
 
-####Return:
-*  void
+> This function no return anything
 
-####Parameters:
+#####Parameters:
 *  string $db - Name of database to connect
+
+#####Example
 ```php
     $mysi->connect();
 ```
@@ -91,17 +99,14 @@ __void connect( [string $db = ""])__
 ##createTableLog
 __resource createTableLog()__
 
-Function to create the LOG data table.
+> Function to create the LOG data table.
 
+> This function hasn't parameters and not return anything.
+
+#####Example
 ```php
 $mysql->createTableLog();
 ```
-####Return:
-* void
-
-####Parameters:
-*  void
-
 
 #Some Examples:
 ```php
