@@ -217,6 +217,58 @@ $mysql->export("export.txt", true);
 $mysql->export("export.txt", false, 'enterprises,customers', 'bz2');
 ```
 
+##fetchArray
+__array fetchArray( [int $type = MYSQL_BOTH])__
+
+>Retrieves results referenced by $this->resource (the MySQL connection identifier) as an associative array of numbers, names, or both.
+
+>This function no returns anything.
+
+#####Parameters
+* int $type - Is optional. The sent parameter indicates how the partnership will be. Its values can be MYSQL_NUM, MYSQL_ASSOC or MYSQL_BOTH. By default, MYSQL_BOTH is used.
+
+#####Example
+```php
+$result = $mysql->query("SELECT * FROM names WHERE 1;"); 
+while($row = $mysql->fetchArray()){ 
+    echo $row[0]." ".$mysql->utf8($row['name']); 
+}
+```
+
+##fetchObject
+__object|stdClass fetchObject( [string $class = ""])__
+
+>Retrieves results referenced by $this->resource (the MySQL connection identifier) as an object.
+
+>This function no returns anything.
+
+#####Parameters
+* string $class - IS the name of the class to instantiate to set the properties and return. In other words, it indicates the object class name resulting where will be transferred.
+
+##field_name
+__string field_name( int $num)__
+
+>Recover a specific field name of a column. The source to extract this information is the associate to $this->resource.
+
+>This function no returns anything.
+
+#####Parameters
+* int $num - indicates the field number to read the name.* 
+ 
+##free
+__void free()__
+
+>Free / liberate all memory referenced by $this->resource (the MySQL connection identifier). Only needs to be requested if you are executing queries that required too much memory. The natural behaviour is free / liberate all the memory when the script is ended
+
+>Example: $mysql->free();
+
+Parameters
+>Has no parameters.
+
+
+
+
+
 
 
 
