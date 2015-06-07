@@ -382,13 +382,56 @@ __bool isDate( string $value, [string $format = ""])__
 
 #####Examples
 ```php
-$mysql->isDate("2012/33", "Y/d")    //is transformed to 02-02-2012, like result will be return 'true'. $mysql->isDate("oct-01", "m-d")     //is transformed to 01-10-2012, like result will be return 'true'. 
-$mysql->isDate("oct", "m")          //will be return error, like result will be return 'false'. 
-$mysql->isDate("31", "d")           //will be return error, like result will be return 'false'. 
-$mysql->isDate("31/10/2012", '')    //is transformed to 31-10-2012, like result will be return 'true'.
+$mysql->isDate("2012/33", "Y/d");    //is transformed to 02-02-2012, like result will be return 'true'.
+$mysql->isDate("oct-01", "m-d");     //is transformed to 01-10-2012, like result will be return 'true'.
+$mysql->isDate("oct", "m");          //will be return error, like result will be return 'false'.
+$mysql->isDate("31", "d");           //will be return error, like result will be return 'false'.
+$mysql->isDate("31/10/2012", '');    //is transformed to 31-10-2012, like result will be return 'true'.
 ```
+##isNumber
+__bool isNumber( number $value)__
 
+>Check if the sent value is a number
 
+>Returns true or false.
+
+Parameters:
+>number $value - Value to test
+
+##isString
+__bool isString( number $value)__
+
+>Check if the sent value is a string
+
+>Returns true or false.
+
+Parameters:
+>string $value - Value to test
+
+##mkTimeFormat
+__int mkTimeFormat( string $value, [string $format = ""])__
+
+>Convert a date format, from format received by $format to UNIX format.
+
+>The values with only characters or numbers produce a error. You must to have caution because this function has behaviours defined to help into the development. 
+
+>If the string sent is "2012/33", will be returned 02-02-2012. 
+
+>If the string sent is "oct-01", will be returned 01-10-2012. 
+
+>If the string sent is "2012-oct", will be returned 01-10-2012. 
+
+>Returns the UNIX timestamp
+
+#####Parameters:
+>string $value - Is string to convert.
+
+>string $format - Is target format.
+
+#####Example
+```php
+$mysql->mkTimeFormat(date("d-m-Y H:i:s"), "d-m-Y H:i:s");
+```
 
 
 
