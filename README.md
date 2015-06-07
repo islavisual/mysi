@@ -79,6 +79,7 @@ __void connect( [string $db = ""])__
 
 ####Return:
 *  void
+
 ####Parameters:
 *  string $db - Name of database to connect
 ```php
@@ -96,7 +97,7 @@ $mysql->createTableLog();
 ####Return:
 * void
 
-Parameters:
+####Parameters:
 *  void
 
 
