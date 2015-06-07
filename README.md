@@ -39,6 +39,7 @@ __bool checkToken( string $string, [string $token = ""])__
 Function to compare the sent token into $token and the string returned through by $string.
 ###Return
 *  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+
 ###Parameters:
 *  string $string - Original string to compare.
 *  string $token - Encrypted string to compare.
