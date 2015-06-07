@@ -17,23 +17,20 @@ Just then, first of all is to set the user, password and database associated to 
 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
-Methods
-=======
-checkBadWords
--------------
+#Methods
+##checkBadWords
 boolean checkBadWords($array)
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
 If file has one of array words returns a message error and execution is give by terminated. 
-<code>
-$lines = file('export.sql');<br>
-$badWords = $mysql->checkBadWords($lines);
-</code>
-Return:
-If return value is 'true' means the code contain bad words.
-Parameters:
+###Return:
+   If return value is 'true' means the code contain bad words.
+###Parameters:
     array $array - Array of queries that contain the code to check.
-
+```php
+$lines = file('export.sql');<br>;
+$badWords = $mysql->checkBadWords($lines);
+```
 
 
 
