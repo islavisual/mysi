@@ -19,7 +19,8 @@ In the definition class, every function, is commented through to PHP DOC to make
 
 #Methods
 ##checkBadWords
-bool checkBadWords($array)
+__bool checkBadWords($array)__
+
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
 If file has one of array words returns a message error and execution is give by terminated. 
@@ -36,15 +37,15 @@ $badWords = $mysql->checkBadWords($lines);
 __bool checkToken( string $string, [string $token = ""])__
 
 Function to compare the sent token into $token and the string returned through by $string.
+###Return
+Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+
+###Parameters:
+    string $string - Original string to compare.
+    string $token - Encrypted string to compare.
 ```php
 $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 ```
-###Return
-Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
-###Parameters:
-    string $string - Original string to compare.\n
-    string $token - Encrypted string to compare.
-
 
 
 
