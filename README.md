@@ -1,3 +1,7 @@
+<style>
+.markdown-body h2 {color:#ae0035}
+.markdown-body h4 {color:#385A84}
+</style>
 #mysi 1.02
 
 MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
