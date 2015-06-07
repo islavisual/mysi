@@ -307,8 +307,88 @@ __array getListValues( string $sentence)__
 >string $sentence - Query to execute.
 
 #####Example
+```php
 // Later of execute the next query, you can recover this values like $id and $name. 
 list($id, $name) = $this->getValues('SELECT id, name FROM customers WHERE id = 1;');
+```
+
+##getNextAutoIncrement
+__string getNextAutoIncrement( string $table, [string $db = ""])__
+
+>Function to get next auto increment value from a table.
+
+>Returns the next value.
+    
+#####Parameters:
+>string $table - Table name.
+
+>string $db - Database name. By default the database name used will be the seted by _CURRENT_DB variable.
+
+#####Examples
+```php
+$mysql->getNextAutoIncrement('customers');
+$mysql->getNextAutoIncrement('customers', 'database_name');
+```
+
+##getValue
+__string|number getValue( string $sentence, [int $field_number = 0])__
+
+>Funtion to recover a specific value. Make the request to database sent by first parameter and, if the query is a type of SHOW, EXPLAIN, ... allow choice the column to return setting the second parameter.
+
+>If the result is empty, by default the value seted into _EMPTY_FIELD_BY_DEFAULT is returned. 
+
+>Returns the resulting value.
+    
+#####Parameters
+>string $sentence - Query to execute.
+
+>int $field_number - Column to return
+
+Examples
+```php
+$mysql->getValue("SELECT name FROM customers WHERE id = 1;"); 
+$mysql->getValue("SHOW FULL COLUMNS FROM customers", 1);
+```
+
+##insertEntryLog
+__void insertEntryLog( [string $event = ''])__
+
+>Function to insert a event into LOG table. In addition save, the name and version browser, IP and operative system and page...
+
+>This function no returns anuthing
+
+#####Parameters:
+>string $event - String to save into database.
+
+#####Example
+```php
+$mysql->insertEntryLog("Access to");
+```
+
+##isDate
+__bool isDate( string $value, [string $format = ""])__
+
+>Check if the sent string is a date type. You must send the format to check.
+
+>The parameters than you can to use into $format variable are the PHP same that. 
+
+>Returns true or false.
+
+#####Parameters
+>string $value - String to check.
+
+>string $format - Format defined.
+
+
+#####Examples
+```php
+$mysql->isDate("2012/33", "Y/d")    //is transformed to 02-02-2012, like result will be return 'true'. $mysql->isDate("oct-01", "m-d")     //is transformed to 01-10-2012, like result will be return 'true'. 
+$mysql->isDate("oct", "m")          //will be return error, like result will be return 'false'. 
+$mysql->isDate("31", "d")           //will be return error, like result will be return 'false'. 
+$mysql->isDate("31/10/2012", '')    //is transformed to 31-10-2012, like result will be return 'true'.
+```
+
+
 
 
 
