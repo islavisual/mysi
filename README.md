@@ -30,7 +30,7 @@ If file has one of array words returns a message error and execution is give by 
 ###Parameters:
 *  array $array - Array of queries that contain the code to check.
 ```php
-$lines = file('export.sql');<br>;
+$lines = file('export.sql');
 $badWords = $mysql->checkBadWords($lines);
 ```
 
@@ -60,6 +60,19 @@ Clear text and prepare to execute.
 ```php
 $mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
 ```
+
+##compareTokens
+__bool compareTokens( string $token1, [string $token2 = ""])__
+
+Function to check two tokens. If $token1 is empty take to compare the returned token by the _ENCODED_TOKEN
+
+###Return
+*  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+
+###Parameters:
+*  string $token1 - First token to compare.
+*  string $token2 - Second token to compare.
+
 
 
 
