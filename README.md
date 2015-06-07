@@ -43,8 +43,9 @@ __bool checkToken( string $string, [string $token = ""])__
 > Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 #####Parameters
-* string $string - Original string to compare.
-* string $token - Encrypted string to compare.
+>string $string - Original string to compare.
+
+>string $token - Encrypted string to compare.
 
 #####Example
 ```php
@@ -59,7 +60,7 @@ __string clean( type $text)__
 > Returns a string clean of commets and white blanks.
 
 #####Parameters
-* type $text - Is the array / text with the queries SQL.
+>type $text - Is the array / text with the queries SQL.
 
 #####Example
 ```php
@@ -74,8 +75,9 @@ __bool compareTokens( string $token1, [string $token2 = ""])__
 > Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 #####Parameters:
-*  string $token1 - First token to compare.
-*  string $token2 - Second token to compare.
+>string $token1 - First token to compare.
+
+>string $token2 - Second token to compare.
 
 #####Example
 ```php
@@ -89,7 +91,7 @@ __void connect( [string $db = ""])__
 > This function no return anything
 
 #####Parameters:
-*  string $db - Name of database to connect
+>Example: // Later of execute the next query, you can recover this values like $id and $name. list($id, $name) = $this->getValues('SELECT id, name FROM customers WHERE id = 1;');string $db - Name of database to connect
 
 #####Example
 ```php
@@ -113,10 +115,10 @@ __string decodeToken( string $token)__
 
 >Function to decrypted tokens.
 
-> Returns a string decrypted.
+>Returns a string decrypted.
 
 #####Parameters:
-* string $token - String to decode
+>string $token - String to decode
 
 #####Example
 ```php
@@ -131,8 +133,9 @@ __void delete( string $table, string $cond)__
 > This function no returns anything.
 
 #####Parameters:
-* string $table - Table name.
-* string $cond - String with the conditional sentence. 
+>string $table - Table name.
+
+>string $cond - String with the conditional sentence. 
 
 #####Example
 ```php
@@ -146,7 +149,7 @@ __void disconnect()__
 > This function no returns anything.
 
 #####Parameters:
-*  Has no parameters.
+>Has no parameters.
 
 #####Example
 ```php
@@ -161,10 +164,13 @@ __array elapsedTime( date $dInit, date $dEnd, [string $dInit_format = ""], [stri
 >Will be returned an array with the format array("d" => 0, "h" => 1, "m" => 33, "s" => 2) with the result.
 
 #####Parameters:
-* $dInit date $dInit - Initial date.
-* $dEnd date $dEnd - Final date.
-* string $dInit_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
-* string $dEnd_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
+>$dInit date $dInit - Initial date.
+
+>$dEnd date $dEnd - Final date.
+
+>string $dInit_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
+
+>string $dEnd_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
 
 ##encodeToken
 __string encodeToken( string $string)__
@@ -189,7 +195,7 @@ __bool existsToken( [string $token = ""])__
 >Returns true if exists, false in another issue.
 
 #####Parameters
-* string $token - Encrypted string to check.
+>string $token - Encrypted string to check.
 
 #####Example
 ```php
@@ -204,10 +210,13 @@ __void export( string $exportfilename, [bool $exportdrop = false], [bool|array $
 > This function no returns anything.
 
 #####Parameters:
-* string $exportfilename - The target filename.
-* bool $exportdrop - It is optional. Indicates if the table must be dropped before to re-create it.
-* bool|array $exporttables - It is optional. Its a array that contains the tables of the database that will be stored. You can specify a 'false' value to indicate that all tables of the database are exported. Its default value is false.
-* bool $exportcompresion - It is optional. If this parameter is seted to 'true', the file will be compressed.
+>string $exportfilename - The target filename.
+
+>bool $exportdrop - It is optional. Indicates if the table must be dropped before to re-create it.
+
+>bool|array $exporttables - It is optional. Its a array that contains the tables of the database that will be stored. You can specify a 'false' value to indicate that all tables of the database are exported. Its default value is false.
+
+>bool $exportcompresion - It is optional. If this parameter is seted to 'true', the file will be compressed.
 
 
 #####Examples
@@ -225,7 +234,7 @@ __array fetchArray( [int $type = MYSQL_BOTH])__
 >This function no returns anything.
 
 #####Parameters
-* int $type - Is optional. The sent parameter indicates how the partnership will be. Its values can be MYSQL_NUM, MYSQL_ASSOC or MYSQL_BOTH. By default, MYSQL_BOTH is used.
+>int $type - Is optional. The sent parameter indicates how the partnership will be. Its values can be MYSQL_NUM, MYSQL_ASSOC or MYSQL_BOTH. By default, MYSQL_BOTH is used.
 
 #####Example
 ```php
@@ -253,7 +262,7 @@ __string field_name( int $num)__
 >This function no returns anything.
 
 #####Parameters
-* int $num - indicates the field number to read the name.* 
+>int $num - indicates the field number to read the name.* 
  
 ##free
 __void free()__
@@ -295,7 +304,7 @@ __array getListValues( string $sentence)__
 >Returns an array with the result of execute the query.
     
 #####Parameters
-* string $sentence - Query to execute.
+>string $sentence - Query to execute.
 
 #####Example
 // Later of execute the next query, you can recover this values like $id and $name. 
