@@ -166,6 +166,57 @@ __array elapsedTime( date $dInit, date $dEnd, [string $dInit_format = ""], [stri
 * string $dInit_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
 * string $dEnd_format - Is Optional. * If is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type.
 
+##encodeToken
+__string encodeToken( string $string)__
+ 
+>Function to encrypted tokens. The algorithm is made through to _TOKEN_KEY constant to make the sent string.
+
+>Returns String encrypted.
+
+#####Parameters:
+* string $string - String to encode
+
+#####Example
+```php
+$mysql->encodeToken("Complete. SELECT * FROM blog_tags WHERE 1;");
+```
+
+##existsToken
+__bool existsToken( [string $token = ""])__
+
+>Function to check if sent token already is into database.
+
+>Returns true if exists, false in another issue.
+
+#####Parameters
+* string $token - Encrypted string to check.
+
+#####Example
+```php
+$mysql->existsToken("6qblJRamKigUBqqlqWgTQ==");
+```
+
+##export
+__void export( string $exportfilename, [bool $exportdrop = false], [bool|array $exporttables = false], [bool $exportcompresion = false])__
+
+>Function to export, complete or partially, a database.
+
+> This function no returns anything.
+
+#####Parameters:
+* string $exportfilename - The target filename.
+* bool $exportdrop - It is optional. Indicates if the table must be dropped before to re-create it.
+* bool|array $exporttables - It is optional. Its a array that contains the tables of the database that will be stored. You can specify a 'false' value to indicate that all tables of the database are exported. Its default value is false.
+* bool $exportcompresion - It is optional. If this parameter is seted to 'true', the file will be compressed.
+
+
+#####Examples
+```php
+$mysql->export("export.txt"); 
+$mysql->export("export.txt", true); 
+$mysql->export("export.txt", false, 'enterprises,customers', 'bz2');
+```
+
 
 
 
