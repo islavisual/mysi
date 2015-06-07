@@ -47,6 +47,7 @@ __bool checkToken( string $string, [string $token = ""])__
 
 #####Parameters
 >  string $string - Original string to compare.
+
 >  string $token - Encrypted string to compare.
 
 #####Example
