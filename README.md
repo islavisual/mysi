@@ -25,9 +25,9 @@ Check that does not exists bad words in code sent. Bad word is equivalent to pro
 
 If file has one of array words returns a message error and execution is give by terminated. 
 ###Return:
-   If return value is 'true' means the code contain bad words.
+-  If return value is 'true' means the code contain bad words.
 ###Parameters:
-+  array $array - Array of queries that contain the code to check.
+-  array $array - Array of queries that contain the code to check.
 ```php
 $lines = file('export.sql');<br>;
 $badWords = $mysql->checkBadWords($lines);
@@ -38,7 +38,7 @@ __bool checkToken( string $string, [string $token = ""])__
 
 Function to compare the sent token into $token and the string returned through by $string.
 ###Return
-Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+-  Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
 
 ###Parameters:
 -  string $string - Original string to compare.
@@ -51,9 +51,9 @@ $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
 __string clean( type $text)__
 
 Clear text and prepare to execute.
-#Return
+###Return
 *  Returns a string clean of commets and white blanks
-#Parameters
+###Parameters
 * type $text - Is the array / text with the queries SQL
 ```php
 $mysql->clean("/*!40000 ALTER TABLE `sprint` ENABLE KEYS */; SELECT ...");
