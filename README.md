@@ -1,4 +1,4 @@
-#mysi 1.03
+#mysi 1.02
 
 MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
 
@@ -74,6 +74,30 @@ Function to check two tokens. If $token1 is empty take to compare the returned t
 *  string $token2 - Second token to compare.
 
 
+##connect
+__void connect( [string $db = ""])__
+
+####Return:
+*  void
+####Parameters:
+*  string $db - Name of database to connect
+```php
+    $mysi->connect();
+```
+
+##createTableLog
+__resource createTableLog()__
+
+Function to create the LOG data table.
+
+```php
+$mysql->createTableLog();
+```
+####Return:
+* void
+
+Parameters:
+*  void
 
 
 #Some Examples:
