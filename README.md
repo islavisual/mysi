@@ -33,7 +33,7 @@ $badWords = $mysql->checkBadWords($lines);
 ```
 
 ##checkToken
-```bool checkToken( string $string, [string $token = ""])```
+__bool checkToken( string $string, [string $token = ""])__
 Function to compare the sent token into $token and the string returned through by $string.
 ```php
 $mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
