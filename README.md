@@ -24,12 +24,10 @@ __bool checkBadWords($array)__
 >Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
 >If file has one of array words returns a message error and execution is give by terminated. 
-
-#####Return
-*If return value is 'true' means the code contain bad words.*
+>If return value is 'true' means the code contain bad words.*
 
 #####Parameters:
-*array $array - Array of queries that contain the code to check.*
+* array $array - Array of queries that contain the code to check.
 
 #####Example
 ```php
@@ -46,8 +44,8 @@ __bool checkToken( string $string, [string $token = ""])__
 _Return a boolean value, 'true' if both tokens are the same, 'false' in another issue._
 
 #####Parameters
-_string $string - Original string to compare._<Enter>
-_string $token - Encrypted string to compare._
+* string $string - Original string to compare.
+* string $token - Encrypted string to compare.
 
 #####Example
 ```php
