@@ -19,7 +19,7 @@ In the definition class, every function, is commented through to PHP DOC to make
 
 #Methods
 ##checkBadWords
-boolean checkBadWords($array)
+bool checkBadWords($array)
 Check that does not exists bad words in code sent. Bad word is equivalent to prohibited sentences. For example this function is recommended when you want disable CREATE or DROP sentences.
 
 If file has one of array words returns a message error and execution is give by terminated. 
@@ -32,11 +32,23 @@ $lines = file('export.sql');<br>;
 $badWords = $mysql->checkBadWords($lines);
 ```
 
+##checkToken
+```bool checkToken( string $string, [string $token = ""])```
+Function to compare the sent token into $token and the string returned through by $string.
+```php
+$mysql->checkToken("Esto es una prueba", "6qblJRamKigUBqqlqWgTQ==");
+```
+###Return
+Return a boolean value, 'true' if both tokens are the same, 'false' in another issue.
+Parameters:
+    string $string - Original string to compare.
+    string $token - Encrypted string to compare.
 
 
-Examples:
-<pre>
-<code>
+
+
+#Some Examples:
+```php
     $mysi->connect();
     $mysi->usedb('database_name');
     $mysi->query("SHOW FULL COLUMNS FROM `database_name`");
@@ -44,6 +56,6 @@ Examples:
     $mysi->query("SHOW FULL COLUMNS FROM customers", 1);
     $mysi->real_escape(sprintf("SELECT * FROM users WHERE user='%s' AND password='%s'");
     $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
-</code>
-</pre>
+```
+
 We have detail description in http://www.islavisual.com/articulos/desarrollo_web/clase-en-php-para-mysql-de-islavisual URL, although is writed in spanish.
