@@ -1,4 +1,4 @@
-#mysi 1.02
+#mysi 1.03
 
 MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
 
@@ -501,7 +501,7 @@ __void showError()__
 #####Parameters
 >No has parameters.
 
-#time2Array
+##time2Array
 __array|bool time2Array( $date $date, $format $format)__
 
 >Function to convert a date of type string to array format.
@@ -544,6 +544,47 @@ __toDateFormat( string $value, [string $format_source = ""], [string $format = "
 ```php
 $mysql->toDateFormat("2012-oct-10","Y-m-d", "d-m-Y");
 ```
+
+##usedb (Deprecated function)
+usedb( $db_name $db_name)__
+
+>Select a database.
+
+>This function no returns anything.
+
+#####Parameters:
+>string $db_name - Database name
+
+##utf8
+__string utf8( string $t)__
+
+>Function to check if a text is encoded like ISO-8859-1. If the response is 'true', the string is coverted to UTF-8, otherwise, the text is decoded.
+
+>Returns a string in UTF-8 format.
+
+#####Parameters
+>string $t - String to check
+
+#####Example
+```php
+$mysql->utf8($row['name']);
+```
+
+##__get
+
+__string __get( string $name)__
+
+>Function allow to recover variables of private use from out of this class.
+
+>To allow recover a variable, the variable must be declare into $_ALLOWED_VARS. If the variable name does not into this list, the system will deny the request and will show an error message.
+
+By default, ```php$_ALLOWED_VARS``` contains completedIn, total_queries, last_insert_id, affected_rows and selected_rows vars.
+
+>Returns the value of variable
+
+#####Parameters
+>string $name - The variable name to recover
+
 
 
 
