@@ -467,10 +467,11 @@ __resource query( string $query, [string $output = ""], [bool $prepare = true])_
 >Returns a pointer to resulting object.
 
 #####Parameters:
+>string $query - Sentence to execute.
 
-    string $query - Sentence to execute.
-    string $output - Type of data to return. The possible options are: ARRAY_A, ARRAY_N, OBJECT.
-    bool $prepare - For execute sentences of lines multiple like FUNCTIONS or PROCEDURES
+>string $output - Type of data to return. The possible options are: ARRAY_A, ARRAY_N, OBJECT.
+
+>bool $prepare - For execute sentences of lines multiple like FUNCTIONS or PROCEDURES
 
 #####Example
 ```php
@@ -478,9 +479,71 @@ $mysi->query("INSERT INTO custumers (`id` , `name`) VALUES (1, 'Islavisual')`");
 $mysi->query("SELECT * FROM `customers` WHERE name LIKE '%IS%'");
 // Recover users into array
 $users = $mysi->query("SELECT * FROM `user` WHERE 1 AND `status` = 1", ARRAY_A);
+```
 
+##real_escape
+__string real_escape( string $sentence)__
 
+>Escapes special characters in a string for use in SQL statements referenced by $this->resource (the MySQL connection identifier).
 
+>Return string escaped.
+
+#####Parameters
+>string $sentence - Query to execute.
+
+##showError
+__void showError()__
+
+>Function to update and show the last occurred error.
+
+>This function no returns anything.
+
+#####Parameters
+>No has parameters.
+
+#time2Array
+__array|bool time2Array( $date $date, $format $format)__
+
+>Function to convert a date of type string to array format.
+
+>The parameters than you can to use into $format variable are the PHP same that. 
+
+#####Parameters:
+>string $date - String date type to convert.
+
+>string  $format - String with the input format.
+
+#####Example
+```php
+@extract($this->time2Array($value,"Y-m-d"));
+```
+
+##toDateFormat
+__toDateFormat( string $value, [string $format_source = ""], [string $format = ""])__
+
+>Convert a string with date format, from format seted by $format_source variable to $format variable.
+
+>The values with only characters or numbers produce a error. 
+
+>If $format_source is empty, by default take the local format defined into class. The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values is time or date type. 
+
+>If $format is empty, by default take the local format defined into class in the _FORMAT_DATETIME_DB variable You must to have caution because this function has behaviours defined to help into the development. 
+
+>If the string sent is "2012/33", will be returned 02-02-2012. If the string sent is "oct-01", will be returned 01-10-2012. If the string sent is "2012-oct", will be returned 01-10-2012. 
+
+>Returns a date in string format.
+
+#####Parameters:
+>string $value - String to transform.
+
+>string $format_source - Source format.
+
+>string $format - Target format.
+
+#####Example
+```php
+$mysql->toDateFormat("2012-oct-10","Y-m-d", "d-m-Y");
+```
 
 
 
