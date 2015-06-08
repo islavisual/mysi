@@ -433,6 +433,51 @@ __int mkTimeFormat( string $value, [string $format = ""])__
 $mysql->mkTimeFormat(date("d-m-Y H:i:s"), "d-m-Y H:i:s");
 ```
 
+##prepare_queries
+__array prepare_queries( string $queries)__
+
+>Function to prepare complex instructions or several queries simultaneously.
+
+>Returns string with the right format to execute into server.
+
+#####Parameters
+>string $queries - List of queries or sentence of lines multiple.
+
+#####Example
+```php
+$query="
+DELIMITER |
+CREATE TRIGGER testref BEFORE INSERT ON test1
+FOR EACH ROW BEGIN
+INSERT INTO test2 SET a2 = NEW.a1;
+DELETE FROM test3 WHERE a3 = NEW.a1;
+UPDATE test4 SET b4 = b4 + 1 WHERE a4 = NEW.a1;
+END;
+|
+DELIMITER ;";
+$mysql->prepare_queries($query);
+```
+##query
+__resource query( string $query, [string $output = ""], [bool $prepare = true])__
+
+>Function to make requests to database.
+
+>If _SHOW_CONTROL_MESSAGES is setet to 'true', will be show the ERROR messages into screen. If _SHOW_WARNING_ERROR is setet to 'true', will be show the WARNING messages into screen. If _STOP_WARNING_ERROR is setet to 'true', the execution is stopped like if had have occurred a fatal error.
+
+>Returns a pointer to resulting object.
+
+#####Parameters:
+
+    string $query - Sentence to execute.
+    string $output - Type of data to return. The possible options are: ARRAY_A, ARRAY_N, OBJECT.
+    bool $prepare - For execute sentences of lines multiple like FUNCTIONS or PROCEDURES
+
+#####Example
+```php
+$mysi->query("INSERT INTO custumers (`id` , `name`) VALUES (1, 'Islavisual')`");
+$mysi->query("SELECT * FROM `customers` WHERE name LIKE '%IS%'");
+// Recover users into array
+$users = $mysi->query("SELECT * FROM `user` WHERE 1 AND `status` = 1", ARRAY_A);
 
 
 
@@ -445,7 +490,7 @@ $mysql->mkTimeFormat(date("d-m-Y H:i:s"), "d-m-Y H:i:s");
     $mysi->usedb('database_name');
     $mysi->query("SHOW FULL COLUMNS FROM `database_name`");
     $mysi->getValue("SELECT id FROM `database_name` WHERE name='Paul'");
-    $mysi->query("SHOW FULL COLUMNS FROM customers", 1);
+    $mysi->getValue("SHOW FULL COLUMNS FROM customers", 1);
     $mysi->real_escape(sprintf("SELECT * FROM users WHERE user='%s' AND password='%s'");
     $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
 ```
