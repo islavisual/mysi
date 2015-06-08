@@ -1,7 +1,7 @@
 <?php
     /* ************************************************************************************************************************************************************
      * ************************************************************************************************************************************************************
-     Mysi MySQL Class 1.0 
+     Mysi MySQL Class 1.03
      Created by Pablo E. Fernández Casado
      Licence MIT.
      Visite http://www.islavisual.com
@@ -9,15 +9,23 @@
      ************************************************************************************************************************************************************
     */
 
-    // Clase Mysql
+    // Get mysiGI class
     include "mysi.getInfo.php";
+
+    // Get main configuration
     require_once( dirname(__FILE__) . "/config.php");
-    
+
+    /**
+     * Global  constants
+     */
     define("OBJECT", "OBJECT");
     define("ARRAY_A", "ARRAY_A");
     define("ARRAY_N", "ARRAY_N");
-    
-    class MYSI{
+
+/**
+ * Class MYSI
+ */
+class MYSI{
         public    $resource;
         private   $total_queries = 0;
         
@@ -301,7 +309,7 @@
         }
        
         /**
-         * Function to recover variables of private use from out of this class.
+         * Function allow to recover variables of private use from out of this class.
          * To allow recover a variable, the variable must be declare into $_ALLOWED_VARS. If the variable name
          * does not into this list, the system will deny the request and will show an error message.
          * @param string $name The variable name to recover
@@ -373,7 +381,7 @@
          * Function to check if a text is encoded like ISO-8859-1.  If the response is 'true', the string is coverted to UTF-8,  otherwise, the text is decoded.
          * Example: $mysql->utf8($row['name']);
          * @param string $t String to check
-         * @return string if UTF-8 format
+         * @return string Returns a string in UTF-8 format
          */
         public function utf8($t){
             return ($this->detectCodeText($t)==ISO_8859_1) ? utf8_encode($t) : utf8_decode($t);
@@ -383,8 +391,8 @@
          * Function to convert a date of type string to array format.
          * The parameters than you can to use into $format variable are the PHP same that.
          * Example: @extract($this->time2Array($value,"Y-m-d"));
-         * @param $date
-         * @param $format
+         * @param string $date String date type to convert.
+         * @param string $format String with the input format.
          * @return array|bool
          */
         public function time2Array($date, $format) {
@@ -557,8 +565,8 @@
 
         /**
          * Function to calculate the days difference between two dates like days, hours, minutes and seconds.
-         * @param $dInit
-         * @param $dEnd
+         * @param date $dInit Initial date.
+         * @param date $dEnd Final date.
          * @param string $dInit_format Is Optional. * If is empty, by default take the local format defined into class.
          * The possible formats are defined in _FORMAT_DATE_FRMWRK and _FORMAT_DATETIME_FRMWRK depends of if the values
          * is time or date type.
@@ -665,7 +673,7 @@
         
         /**
          * Select a database.
-         * @param $db_name
+         * @param string $db_name Database name
          * @return bool
          */
         public function usedb($db_name){
@@ -841,6 +849,7 @@
         
         /**
          * Function to recover the rows number of last executed query.
+         * @param void
          * @return int Number of returned rows
          */
         private function num_rows(){
@@ -856,6 +865,7 @@
         /**
          * Function to recover the affected rows number of last executed query. This value only change when a UPDATE or DELETE sentence is executed.
          * If you execute several sentences with 'prepare' parameter seted to 'true', this value will be the sum of all queries.
+         * @param void
          * @return int Number of affected rows
          */
         private function affected_rows(){
@@ -920,7 +930,7 @@
          * If the result is empty, by default the value seted into _EMPTY_FIELD_BY_DEFAULT is returned.
          * Example:
          *      $mysql->getValue("SELECT name FROM customers WHERE id = 1;");
-         *      $mysql->query("SHOW FULL COLUMNS FROM customers", 1);
+         *      $mysql->getValue("SHOW FULL COLUMNS FROM customers", 1);
          * @param string $sentence Query to execute.
          * @param int $field_number Column to return
          * @return string|number Resulting value.
@@ -1040,21 +1050,6 @@
             return mysql_field_name($this->resource, $num);
         }
         
-        // -------------------------------------------------------------------------------------------------------------------------------------
-        // FUNCIÓN PARA EXPORTAR LA BBDD COMPLETA O TABLAS CONCRETAS.
-        // -------------------------------------------------------------------------------------------------------------------------------------
-        // $exportfilename
-        // Es el nómbre del archivo destuino.
-        // $exporttables:
-        // Array que contiene las tablas de la base de datos que seran resguardadas. Puede especificarse un valor false para indicar que se 
-        // exporten todas las tablas de la base de datos especificada por _DATABASE_NAME_DEVELOPMENT ó _DATABASE_NAME_PRODUCTION. Ejemplos son:
-        // $tablas = false; ó $tablas = array("tabla1", "tabla2", "tablaetc");
-        // $exportcompresion:
-        // Indica cómo se enviará el archivo con los datos exportados. Puede ser FALSE, GZ ó BZ2.
-        // $exportdrop:
-        // Indica si se añadirá DROP antes de la creación de cada tabla.
-        // -------------------------------------------------------------------------------------------------------------------------------------
-
         /**
          * Function to export, complete or partially, a database.
          * Examples:
@@ -1232,8 +1227,8 @@ $insert_into_query
          * Example:
          *      $lines = file('export.sql');
          *      $badWords = $mysql->checkBadWords($lines);
-         * @param type $array Array of queries that contain the code to check.
-         * @return boolean If return value is 'true' means the code contain bad words.
+         * @param array $array Array of queries that contain the code to check.
+         * @return bool If return value is 'true' means the code contain bad words.
          */
         public function checkBadWords($array){
             $badWords = array('CREATE DATABASE', 'DROP DATABASE', 'USE');
