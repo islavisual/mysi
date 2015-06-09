@@ -4,6 +4,9 @@ MYSI is a PHP class to management databases in MySQL.
 
 With this PHP class simple, but complete, can be make traditional queries, send to array with the all query rows, getting a single value, recover in every moment the last ID inserted, getting the rows affected of last update or delete and profit additional of functionalities like dates converter, export the DDBB to a text file compressed or uncompressed, save query logs automaticly, ...
 
+This class can automatically handle development and production environments only by changing the values of the following constants.
+
+
 #Install
 >Copy all files into repository or directory.
 
@@ -22,20 +25,28 @@ With this PHP class simple, but complete, can be make traditional queries, send 
    }
 ```
 
-Just then, first of all is to set the user, password and database associated to the class. The class can automatically handle development and production environments only by changing the values of the following constants.
+#Variables Description
+##Error Variables
+###$_IGNORE_ERRORS
+>Is a list of Numbers of MySQL errors separated by comma that will be managed in a special way. If you want to know what and how errors manage, you can to see the http://dev.mysql.com/doc/refman/5.0/es/error-handling.html URL.
 
-In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
+###$_WARNING_COLOR
+>Color to show the WARNING messages.
 
-#Some Examples:
-```php
-    $mysi->connect();
-    $mysi->usedb('database_name');
-    
-    $mysi->getValue(");
-    $mysi->getValue("SHOW FULL COLUMNS FROM customers", 1);
-    
-    $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
-```
+###$_ERROR_COLOR
+>Color to show the ERROR messages.
+
+###$_SHOW_WARNING_ERROR
+>If this variable is set to 'true', WARNING messages will be displayed.
+
+###$_SHOW_IGNORED_ERRORS
+>If this variable is set to 'false', IGNORED messages aren't displayed. Otherwise, the messages, will be displayed as the others.
+
+###$_SHOW_CONTROL_MESSAGES
+>If this variable is set to 'true', ERROR messages will be displayed.
+
+###$_STOP_WARNING_ERROR
+>If a warning error is found and this variable is seted to 'true', the application execution is forced to stop execution.
 
 #Methods Description
 ##checkBadWords
