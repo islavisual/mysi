@@ -26,6 +26,25 @@ This class can automatically handle development and production environments only
 ```
 
 #Variables Description
+##Database Variables
+#####$selected_rows 
+>Variable that contains number of selected rows for last executed SELECT sentence.
+
+#####$affected_rows
+>Variable that contains number of affected rows for last executed UPDATE, INSERT or DELETE sentence.
+
+#####$last_insert_id
+>Variable that contains the last ID inserted.
+
+#####$last_query
+>Variable that contains the last query executed.
+
+#####$last_error_id
+>Variable that contains the last ERROR NUMBER that provoked the last query executed.
+
+#####$last_error_msg>
+>Variable that contains the last ERROR MESSAGE that provoked the last query executed.
+
 ##Error Variables
 #####$_IGNORE_ERRORS
 >Is a list of Numbers of MySQL errors separated by comma that will be managed in a special way. If you want to know what and how errors manage, you can to see the http://dev.mysql.com/doc/refman/5.0/es/error-handling.html URL.
@@ -60,6 +79,22 @@ This class can automatically handle development and production environments only
 
 #####$_FORMAT_DATE_FRMWRK
 >Date format you want to use in the Framework. By default is seted to european format: 31-12-1970.
+
+##Log Variables
+#####$_ENABLED_LOG
+>If this variable is set to 'true', is saved in the database a log entry every time that a page that is accessed. If 'false', it does nothing.
+
+#####$_LOG_TABLE_CREATE_AUTO
+>Indicates whether to create the table automatically if the database is not created at the time of the call or execution.
+
+#####$_LOG_TABLE_NAME
+>Is the name of the table that has the configuration of LOG's table. By default is 'dblog'.
+
+#####$_SIZE_LOG_IN_DAYS
+>LOG size in days. The default is 30 days. If set to zero means you do not want to delete entries in the log.
+
+#####$_SAVE_QUERIES_IN_LOG
+>If this variable is set to 'true', all queries are saved automatically in MySQL. Otherwise, only events that user requested it will be saved. This is doing directly through insertEntryLog function (...)
 
 #Methods Description
 ##checkBadWords
