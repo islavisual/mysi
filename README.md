@@ -27,75 +27,74 @@ This class can automatically handle development and production environments only
 
 #Variables Description
 ##Database Variables
-__$selected_rows__
+#####$selected_rows 
 >Variable that contains number of selected rows for last executed SELECT sentence.
 
-__$affected_rows__
+#####$affected_rows
 >Variable that contains number of affected rows for last executed UPDATE, INSERT or DELETE sentence.
 
-__$last_insert_id__
+#####$last_insert_id
 >Variable that contains the last ID inserted.
 
-__$last_query__
+#####$last_query
 >Variable that contains the last query executed.
 
-__$last_error_id__
+#####$last_error_id
 >Variable that contains the last ERROR NUMBER that provoked the last query executed.
 
-__$last_error_msg>__
+#####$last_error_msg>
 >Variable that contains the last ERROR MESSAGE that provoked the last query executed.
 
 ##Error Variables
-__$_IGNORE_ERRORS__
+#####$_IGNORE_ERRORS
 >Is a list of Numbers of MySQL errors separated by comma that will be managed in a special way. If you want to know what and how errors manage, you can to see the http://dev.mysql.com/doc/refman/5.0/es/error-handling.html URL.
 
-__$_WARNING_COLOR__
+#####$_WARNING_COLOR
 >Color to show the WARNING messages.
 
-__$_ERROR_COLOR__
+#####$_ERROR_COLOR
 >Color to show the ERROR messages.
 
-__$_SHOW_WARNING_ERROR__
+#####$_SHOW_WARNING_ERROR
 >If this variable is set to 'true', WARNING messages will be displayed.
 
-__$_SHOW_IGNORED_ERRORS__
+#####$_SHOW_IGNORED_ERRORS
 >If this variable is set to 'false', IGNORED messages aren't displayed. Otherwise, the messages, will be displayed as the others.
 
-__$_SHOW_CONTROL_MESSAGES__
+#####$_SHOW_CONTROL_MESSAGES
 >If this variable is set to 'true', ERROR messages will be displayed.
 
-__$_STOP_WARNING_ERROR__
+#####$_STOP_WARNING_ERROR
 >If a warning error is found and this variable is seted to 'true', the application execution is forced to stop execution.
 
 ##Date Variables
-__$_FORMAT_DATETIME_DB__
+#####$_FORMAT_DATETIME_DB
 >Datetime format that has set in the database. By default is seted to MySQL format 1970-01-01 1:00:00.
 
-__$_FORMAT_DATE_DB__
+#####$_FORMAT_DATE_DB
 >Date format that has set in the database. By default is seted to MySQL format 1970-01-01.
 
-__$_FORMAT_DATETIME_FRMWRK__
+#####$_FORMAT_DATETIME_FRMWRK
 >Datetime format you want to use in the Framework. By default is seted to european format: 31-12-1970 00:00:00.
 
-__$_FORMAT_DATE_FRMWRK__
+#####$_FORMAT_DATE_FRMWRK
 >Date format you want to use in the Framework. By default is seted to european format: 31-12-1970.
 
 ##Log Variables
-__$_ENABLED_LOG__
+#####$_ENABLED_LOG
 >If this variable is set to 'true', is saved in the database a log entry every time that a page that is accessed. If 'false', it does nothing.
 
-__$_LOG_TABLE_CREATE_AUTO__
+#####$_LOG_TABLE_CREATE_AUTO
 >Indicates whether to create the table automatically if the database is not created at the time of the call or execution.
 
-__$_LOG_TABLE_NAME__
+#####$_LOG_TABLE_NAME
 >Is the name of the table that has the configuration of LOG's table. By default is 'dblog'.
 
-__$_SIZE_LOG_IN_DAYS__
+#####$_SIZE_LOG_IN_DAYS
 >LOG size in days. The default is 30 days. If set to zero means you do not want to delete entries in the log.
 
-__$_SAVE_QUERIES_IN_LOG__
+#####$_SAVE_QUERIES_IN_LOG
 >If this variable is set to 'true', all queries are saved automatically in MySQL. Otherwise, only events that user requested it will be saved. This is doing directly through insertEntryLog function (...)
-
 
 #Methods Description
 ##checkBadWords
