@@ -48,6 +48,19 @@ This class can automatically handle development and production environments only
 #####$_STOP_WARNING_ERROR
 >If a warning error is found and this variable is seted to 'true', the application execution is forced to stop execution.
 
+##Date Variables
+#####$_FORMAT_DATETIME_DB
+>Datetime format that has set in the database. By default is seted to MySQL format 1970-01-01 1:00:00.
+
+#####$_FORMAT_DATE_DB
+>Date format that has set in the database. By default is seted to MySQL format 1970-01-01.
+
+#####$_FORMAT_DATETIME_FRMWRK
+>Datetime format you want to use in the Framework. By default is seted to european format: 31-12-1970 00:00:00.
+
+#####$_FORMAT_DATE_FRMWRK
+>Date format you want to use in the Framework. By default is seted to european format: 31-12-1970.
+
 #Methods Description
 ##checkBadWords
 __bool checkBadWords($array)__
