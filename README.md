@@ -27,25 +27,25 @@ This class can automatically handle development and production environments only
 
 #Variables Description
 ##Error Variables
-###$_IGNORE_ERRORS
+#####$_IGNORE_ERRORS
 >Is a list of Numbers of MySQL errors separated by comma that will be managed in a special way. If you want to know what and how errors manage, you can to see the http://dev.mysql.com/doc/refman/5.0/es/error-handling.html URL.
 
-###$_WARNING_COLOR
+#####$_WARNING_COLOR
 >Color to show the WARNING messages.
 
-###$_ERROR_COLOR
+#####$_ERROR_COLOR
 >Color to show the ERROR messages.
 
-###$_SHOW_WARNING_ERROR
+#####$_SHOW_WARNING_ERROR
 >If this variable is set to 'true', WARNING messages will be displayed.
 
-###$_SHOW_IGNORED_ERRORS
+#####$_SHOW_IGNORED_ERRORS
 >If this variable is set to 'false', IGNORED messages aren't displayed. Otherwise, the messages, will be displayed as the others.
 
-###$_SHOW_CONTROL_MESSAGES
+#####$_SHOW_CONTROL_MESSAGES
 >If this variable is set to 'true', ERROR messages will be displayed.
 
-###$_STOP_WARNING_ERROR
+#####$_STOP_WARNING_ERROR
 >If a warning error is found and this variable is seted to 'true', the application execution is forced to stop execution.
 
 #Methods Description
