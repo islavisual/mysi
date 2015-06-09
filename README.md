@@ -1,23 +1,43 @@
 #mysi 1.03
 
-MYSI is a PHP class to management databases in MySQL. Includes, among other things, basic functions and export in plain text and compressed.
+MYSI is a PHP class to management databases in MySQL. 
 
-With this simple, but complete, PHP class can be make queries and getting a single value, get an array with the all rows, export the DDBB to a text file compressed or uncompressed, save query logs, recover in every moment the last ID inserted, rows affected, convert easyly dates from all formats to MySQL format, and more functionalities.
+With this PHP class simple, but complete, can be make traditional queries, send to array with the all query rows, getting a single value, recover in every moment the last ID inserted, getting the rows affected of last update or delete and profit additional of functionalities like dates converter, export the DDBB to a text file compressed or uncompressed, save query logs automaticly, ...
 
-Way to use
-==========
-   <code>include "mysi.php";</code><br>
-   <code>$mysi = new MYSI;</code>
+#Install
+>Copy all files into repository or directory.
 
+>Update / modify the __config.php__ file with your users, passwords and database names for Development and Production.
 
-Then it's a matter of making calls to the functions you want to use as a PHP class either:<br>
-   <code>$mysi->connect("database_name");</code>
+>In addition, you can update / modify the time variables, dat variables, error variables and codification into __mysi.php__ file with your users, passwords and database names for Development and Production.
+
+#Way to use
+```php
+   include "mysi/mysi.php";
+   $mysi = new MYSI();
+   $mysi->connect('database_name');
+   $array = $mysi->query("SELECT id FROM `database_name` WHERE field_name LIKE '%value%'", ARRAY_A);
+   foreach($array as $key => $value){
+      echo $key." contains ".$value;
+   }
+```
 
 Just then, first of all is to set the user, password and database associated to the class. The class can automatically handle development and production environments only by changing the values of the following constants.
 
 In the definition class, every function, is commented through to PHP DOC to make easier the understanding every one.
 
-#Methods
+#Some Examples:
+```php
+    $mysi->connect();
+    $mysi->usedb('database_name');
+    
+    $mysi->getValue(");
+    $mysi->getValue("SHOW FULL COLUMNS FROM customers", 1);
+    
+    $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
+```
+
+#Methods Description
 ##checkBadWords
 __bool checkBadWords($array)__
 
@@ -491,6 +511,11 @@ __string real_escape( string $sentence)__
 #####Parameters
 >string $sentence - Query to execute.
 
+#####Example
+```php
+$mysi->real_escape(sprintf("SELECT * FROM users WHERE user='%s' AND password='%s'");
+```
+
 ##showError
 __void showError()__
 
@@ -584,19 +609,5 @@ By default, ```php$_ALLOWED_VARS``` contains completedIn, total_queries, last_in
 
 #####Parameters
 >string $name - The variable name to recover
-
-
-
-
-#Some Examples:
-```php
-    $mysi->connect();
-    $mysi->usedb('database_name');
-    $mysi->query("SHOW FULL COLUMNS FROM `database_name`");
-    $mysi->getValue("SELECT id FROM `database_name` WHERE name='Paul'");
-    $mysi->getValue("SHOW FULL COLUMNS FROM customers", 1);
-    $mysi->real_escape(sprintf("SELECT * FROM users WHERE user='%s' AND password='%s'");
-    $mysi->export("export.txt", false, 'enterprises,customers', 'bz2');
-```
 
 We have detail description in http://www.islavisual.com/articulos/desarrollo_web/clase-en-php-para-mysql-de-islavisual URL, although is writed in spanish.
